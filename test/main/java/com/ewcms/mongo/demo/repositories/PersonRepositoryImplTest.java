@@ -1,4 +1,4 @@
-package com.ewcms.mongo.repositories;
+package com.ewcms.mongo.demo.repositories;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,8 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.ewcms.mongo.model.Person;
+import com.ewcms.mongo.demo.model.Person;
+import com.ewcms.mongo.demo.repositories.PersonRepository;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:applicationContext.xml" })
