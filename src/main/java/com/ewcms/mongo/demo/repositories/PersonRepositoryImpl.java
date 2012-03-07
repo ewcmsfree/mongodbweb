@@ -1,4 +1,4 @@
-package com.ewcms.mongo.repositories;
+package com.ewcms.mongo.demo.repositories;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,8 +9,8 @@ import org.springframework.data.mongodb.core.DbCallback;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.stereotype.Repository;
 
-import com.ewcms.mongo.model.Person;
-import com.ewcms.repositories.MongoBaseRepository;
+import com.ewcms.comm.repositories.MongoBaseRepository;
+import com.ewcms.mongo.demo.model.Person;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;

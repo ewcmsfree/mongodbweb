@@ -1,4 +1,4 @@
-package com.ewcms.mongo.model;
+package com.ewcms.mongo.demo.model;
 
 import java.io.Serializable;
 
