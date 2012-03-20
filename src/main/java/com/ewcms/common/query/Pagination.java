@@ -4,17 +4,26 @@
  * http://www.ewcms.com
  */
 
-package com.ewcms.comm.query;
+package com.ewcms.common.query;
 
+/**
+ * 分页信息
+ * 
+ * @author wangwei
+ */
 public interface Pagination {
 
-   static final int DEFAULT_SIZE = 20;
-   
-   static final int DEFAULT_NUMBER = 0;
-    
-   Pagination setSize(int row);
-    
-   Pagination setNumber(int page);
-   
-   Pagination setTotal(int total);
+	/**
+	 * 返回页面大小
+	 * 
+	 * @return
+	 */
+   int getSize();
+
+   /**
+    * 返回页数
+    * 
+    * @return
+    */
+   int getNumber();
 }

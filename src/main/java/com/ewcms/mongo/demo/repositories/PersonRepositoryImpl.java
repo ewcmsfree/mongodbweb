@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.DbCallback;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.stereotype.Repository;
 
-import com.ewcms.comm.repositories.MongoBaseRepository;
+import com.ewcms.common.repositories.MongoBaseRepository;
 import com.ewcms.mongo.demo.model.Person;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;

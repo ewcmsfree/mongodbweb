@@ -21,7 +21,6 @@ public class Person implements Serializable{
 		return id;
 	}
 	
-	
 	public String getName() {
 		return name;
 	}

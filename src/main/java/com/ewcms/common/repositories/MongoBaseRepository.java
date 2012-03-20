@@ -1,4 +1,4 @@
-package com.ewcms.comm.repositories;
+package com.ewcms.common.repositories;
 
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;

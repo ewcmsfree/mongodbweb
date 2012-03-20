@@ -4,13 +4,27 @@
  * http://www.ewcms.com
  */
 
-package com.ewcms.comm.query;
+package com.ewcms.common.query;
 
 /**
+ * 数据查询
  *
  * @author wangwei
  */
-public interface Query<T> extends Pagination {
+public interface Query<T>{
     
+	/**
+	 * 查询数据
+	 * 
+	 * @return
+	 */
     Result<T> find();
+    
+    /**
+     * 查询分页数据
+     * 
+     * @param page
+     * @return
+     */
+    ResultPage<T> find(Pagination page);
 }
