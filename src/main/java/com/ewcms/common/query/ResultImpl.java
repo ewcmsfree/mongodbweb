@@ -26,7 +26,7 @@ public class ResultImpl<T> implements Result<T> {
 	/**
 	 * 创建{@code ResultImpl}实现
 	 * 
-	 * @param content 查询内容
+	 * @param content 查询内容,不能为{@literal null}
 	 */
 	public ResultImpl(List<T> content) {
 		this(content,new HashMap<String,Object>());
@@ -35,12 +35,16 @@ public class ResultImpl<T> implements Result<T> {
 	/**
 	 * 创建{@code ResultImpl}实现
 	 * 
-	 * @param content 查询内容
-	 * @param addition 附加查询内容
+	 * @param content 查询内容,不能为{@literal null}
+	 * @param addition 附加查询内容,可以为{@literal null}
 	 */
 	public ResultImpl(List<T> content,Map<String,?> addition){
+		if(content == null){
+			throw new IllegalArgumentException("content must not null!");
+		}
+		
 		this.content = content;
-		this.addition = addition;
+		this.addition = addition == null ? new HashMap<String,Object>() : addition;
 	}
 
 	@Override

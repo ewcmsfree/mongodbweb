@@ -40,7 +40,7 @@ public interface Result<T> extends Iterable<T> {
 	boolean hasContent();
 	 
 	/**
-	 * 查询附加内容，如：sum(xxxx),agv(xxxx){@link Map}。
+	 * 查询附加内容{@link Map}，如指定属性的求和或平均数等。
 	 *  
 	 * @return
 	 */
