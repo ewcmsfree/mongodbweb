@@ -29,7 +29,7 @@ public class SortTest {
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
-	public void testDirectionFromStringException(){
+	public void testDirectionFromStringIsNotExist(){
 		Sort.Direction.fromString("asc1");
 	}
 	
