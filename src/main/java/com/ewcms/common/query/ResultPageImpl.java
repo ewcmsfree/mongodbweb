@@ -62,7 +62,7 @@ public class ResultPageImpl<T> extends ResultImpl<T> implements ResultPage<T> {
 		this.number = page.getNumber();
 		this.size = page.getSize();
 		this.total = total;
-		this.pageAddition = pageAddition;
+		this.pageAddition = pageAddition == null ? new HashMap<String,Object>():pageAddition;
 	}
 
 	@Override
@@ -97,12 +97,12 @@ public class ResultPageImpl<T> extends ResultImpl<T> implements ResultPage<T> {
 
 	@Override
 	public boolean hasNextPage() {
-		return number < getTotalPages();
+		return number < (getTotalPages() - 1);
 	}
 
 	@Override
 	public boolean isLastPage() {
-		return number == (getTotalPages()-1);
+		return number == (getTotalPages() - 1);
 	}
 
 	@Override
