@@ -27,7 +27,7 @@ public class Sort implements Iterable<com.ewcms.common.query.Sort.Order>{
 	/**
 	 * 创建{@link Sort}实现
 	 * 
-	 * @param orders order不能为{@link null}或内容{@literal null}或空字符串
+	 * @param orders order不能为{@link null}或内容{@literal null}
 	 */
 	public Sort(List<Order> orders){
 		if (null == orders || orders.isEmpty()) {
