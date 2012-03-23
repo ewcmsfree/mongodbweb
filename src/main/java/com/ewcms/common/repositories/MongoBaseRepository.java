@@ -31,6 +31,7 @@ public abstract class MongoBaseRepository<T,ID extends Serializable> implements 
 		entityInformation=new DefaultEntityInformationCreator(
 				mongoConverter.getMappingContext()).
 				<T,ID>getEntityInformation(type);
+	
         repository = new SimpleMongoRepository<T,ID>(entityInformation,mongoOperations);
 	}
 	
