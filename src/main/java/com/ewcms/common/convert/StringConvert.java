@@ -7,11 +7,11 @@
 package com.ewcms.common.convert;
 
 /**
- * 转换成String数据类型
+ * 转换成{@link String}
  * 
  * @author WangWei
  */
-class StringConvert implements Convertable<String> {
+class StringConvert implements Convert<String> {
 
     @Override
     public String parse(String value) {
@@ -19,7 +19,17 @@ class StringConvert implements Convertable<String> {
     }
 
     @Override
-    public String parseString(String value) {
-        return (String)value;
+	public String parseFor(String patter, String value) throws ConvertException {
+		return value;
+	}
+	
+    @Override
+    public String toString(String value) {
+        return value;
     }
+    
+    @Override
+	public String format(String patter, String value) {
+		return value;
+	}
 }

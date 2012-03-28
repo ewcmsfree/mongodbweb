@@ -7,11 +7,11 @@
 package com.ewcms.common.convert;
 
 /**
- * 转换成Integer数据类型
+ * 转换成{@link Integer}
  *  
- * @author WangWei
+ * @author wangwei
  */
-class IntegerConvert implements Convertable<Integer> {
+class IntegerConvert extends NumberConvert<Integer> {
     
     @Override
     public Integer parse(String value)throws ConvertException {
@@ -22,10 +22,8 @@ class IntegerConvert implements Convertable<Integer> {
         }
     }
 
-    @Override
-    public String parseString(Integer value) {
-        return String.valueOf(value.intValue());
-    }
-    
-    
+	@Override
+	protected Integer toValue(Number number) {
+		return number.intValue();
+	}
 }

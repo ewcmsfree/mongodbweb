@@ -6,17 +6,17 @@
 
 package com.ewcms.common.convert;
 
-import java.sql.Date;
-import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
- * 转换成{@link java.sql.Date}，缺省日期格式{@code yyyy-MM-dd}或{@code yyyy-MM-dd HH:mm:ss}。
- * 
+ * 转换成{@link java.util.Date}，缺省格式为{@code yyyy-MM-dd}或{@code yyyy-MM-dd HH:mm:ss}。
+ *
  * @author WangWei
  */
-class SqlDateConvert extends DateConvert<Date> {
+class UtilDateConvert extends DateConvert<Date> {
 
     private final static DateFormat DEFAULT_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private final static DateFormat SHORT_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
@@ -33,9 +33,9 @@ class SqlDateConvert extends DateConvert<Date> {
     public Date parse(String value) throws ConvertException {
         try {
             if (isShortFormat(value)) {
-                return new Date(SHORT_FORMAT.parse(value).getTime());
+                return SHORT_FORMAT.parse(value);
             } else {
-                return new Date(DEFAULT_FORMAT.parse(value).getTime());
+                return DEFAULT_FORMAT.parse(value);
             }
         } catch (ParseException e) {
             throw new ConvertException(e);

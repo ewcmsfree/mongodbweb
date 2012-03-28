@@ -7,11 +7,11 @@
 package com.ewcms.common.convert;
 
 /**
- * 转换成Short数据类型
+ * 转换成{@link Short}
  *  
  * @author WangWei
  */
-class ShortConvert implements Convertable<Short> {
+class ShortConvert extends NumberConvert<Short> {
     
     @Override
     public Short parse(String value)throws ConvertException {
@@ -21,9 +21,13 @@ class ShortConvert implements Convertable<Short> {
             throw new ConvertException(e);
         }
     }
+
+	@Override
+	protected Short toValue(Number number) {
+		return number.shortValue();
+	}
     
-    @Override
-    public String parseString(Short value) {
-        return String.valueOf(value.shortValue());
-    }
+    
+    
+   
 }

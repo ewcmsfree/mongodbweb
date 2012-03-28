@@ -12,40 +12,33 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 /**
- * 转换成Timestamp数据类型的值
- * <p>缺省日期格式<code>yyyy-MM-dd HH:mm:ss</code></p>
+ * 转换成{@link java.sql.Timestamp}，缺省格式{@code yyyy-MM-dd HH:mm:ss}。
  * 
  * @author WangWei
  */
-class SqlTimestampConvert implements ConvertDateable<Timestamp> {
+class SqlTimestampConvert extends DateConvert<Timestamp> {
 
-    private final static DateFormat DEFAULT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private SimpleDateFormat format;
+    private  static final  DateFormat DEFAULT_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    @Override
-    public void setFormat(String format) {
-        this.format = new SimpleDateFormat(format);
-    }
-
+    /**
+     * 格式为{@code yyyy-MM-dd HH:mm:ss}
+     */
     @Override
     public Timestamp parse(String value) throws ConvertException {
-
         try {
-           if(format != null){
-                return new Timestamp(format.parse(value).getTime());
-            }
-            return new Timestamp(DEFAULT.parse(value).getTime());
+            return new Timestamp(DEFAULT_FORMAT.parse(value).getTime());
         } catch (ParseException e) {
             throw new ConvertException(e);
         }
     }
 
     @Override
-    public String parseString(Timestamp value) {
-       if (format != null) {
-            return format.format(value);
-        } else {
-            return DEFAULT.format(value);
-        }
+    public String toString(Timestamp value) {
+        return DEFAULT_FORMAT.format(value);
     }
+ 
+	@Override
+	protected Timestamp toValue(long time) {
+		return new Timestamp(time);
+	}
 }

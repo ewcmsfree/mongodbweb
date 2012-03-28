@@ -7,11 +7,11 @@
 package com.ewcms.common.convert;
 
 /**
- * 转换成Float数据类型
+ * 转换成{@link Float}
  *  
  * @author WangWei
  */
-class FloatConvert implements Convertable<Float> {
+class FloatConvert extends NumberConvert<Float> {
     
     @Override
     public Float parse(String value) throws ConvertException{
@@ -22,8 +22,8 @@ class FloatConvert implements Convertable<Float> {
         }
     }
 
-    @Override
-    public String parseString(Float value) {
-        return String.valueOf(value.floatValue());
-    }
+	@Override
+	protected Float toValue(Number number) {
+		return number.floatValue();
+	}
 }

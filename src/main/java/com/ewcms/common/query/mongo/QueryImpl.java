@@ -8,13 +8,16 @@ package com.ewcms.common.query.mongo;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 
+import com.ewcms.common.convert.ConvertException;
 import com.ewcms.common.query.Pagination;
 import com.ewcms.common.query.Query;
 import com.ewcms.common.query.Result;
+import com.ewcms.common.query.ResultImpl;
 import com.ewcms.common.query.ResultPage;
 
 /**
@@ -27,37 +30,41 @@ public class QueryImpl<T> implements Query<T>{
 
 	private final MongoOperations operations;
 	private final Criteria criteria;
+	private final Class<T> entityType;
 	
-	protected QueryImpl(MongoOperations operations){
-		this(operations,new Criteria());
-	}
-	
-	protected QueryImpl(MongoOperations operations,Criteria criteria){
+	protected QueryImpl(MongoOperations operations,Criteria criteria,Class<T> entityType){
 		this.operations = operations;
 		this.criteria = criteria;
+		this.entityType = entityType;
 	}
 	
 	@Override
 	public Result<T> find() {
-		// TODO Auto-generated method stub
-		return null;
+		List<T> list = operations.find(
+				new org.springframework.data.mongodb.core.query.Query(criteria)
+				,entityType);
+		return new ResultImpl<T>(list);
 	}
-
+	
 	@Override
 	public ResultPage<T> find(Pagination page) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 	
-	public static class NotWhere<T>{
-		private MongoOperations operations;
+	public static class NoWhere<T>{
+		private final MongoOperations operations;
+		private final Class<T> entityType;
 		
-		public NotWhere(MongoOperations operations){
+		@SuppressWarnings("unchecked")
+		public NoWhere(MongoOperations operations){
 			this.operations = operations;
+			ParameterizedType genericSuperclass =(ParameterizedType) getClass().getGenericSuperclass();
+			entityType =(Class<T>) genericSuperclass.getActualTypeArguments()[0];
 		}
 		
 		public Query<T> build(){
-			return new QueryImpl<T>(operations);
+			return new QueryImpl<T>(operations,new Criteria(),entityType);
 		}
 	}
 	
@@ -65,11 +72,13 @@ public class QueryImpl<T> implements Query<T>{
 		private MongoOperations operations;
 		private Criteria criteria;
 		private Class<T> entityType;
+		private PropertyConvert convert;
 		
 		private void init(MongoOperations operations,Class<T> entityType,String key){
 			this.operations = operations;
 			this.criteria = Criteria.where(key);
 			this.entityType = entityType;
+			this.convert = new PropertyConvert(entityType);
 		}
 		
 		@SuppressWarnings("unchecked")
@@ -89,7 +98,21 @@ public class QueryImpl<T> implements Query<T>{
 		}
 		
 		public Where<T> is(Object o) {
-			criteria.is(o);
+			if(o != null){
+				criteria.is(o);	
+			}
+			return this;
+		}
+		
+		public Where<T> is(String o) throws ConvertException{
+			Object c = convert.convert(criteria.getKey(),o);
+			criteria.is(c);
+			return this;
+		}
+		
+		public Where<T> is(String o,String patter)throws ConvertException{
+			Object c = convert.convertFormat(criteria.getKey(),patter,o);
+			criteria.is(c);
 			return this;
 		}
 		
@@ -204,7 +227,7 @@ public class QueryImpl<T> implements Query<T>{
 		}
 		
 		public Query<T> build(){
-			return new QueryImpl<T>(operations,criteria);
+			return new QueryImpl<T>(operations,criteria,entityType);
 		}
 	}
 }

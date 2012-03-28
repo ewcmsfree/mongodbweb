@@ -7,11 +7,11 @@
 package com.ewcms.common.convert;
 
 /**
- * 转换成Double数据类型
+ * 转换成{@link Double}
  *  
  * @author WangWei
  */
-class DoubleConvert implements Convertable<Double> {
+class DoubleConvert extends NumberConvert<Double> {
     
     @Override
     public Double parse(String value)throws ConvertException {
@@ -22,8 +22,8 @@ class DoubleConvert implements Convertable<Double> {
         }
     }
 
-    @Override
-    public String parseString(Double value) {
-        return String.valueOf(value.doubleValue());
-    }
+	@Override
+	protected Double toValue(Number number) {
+		return number.doubleValue();
+	}
 }

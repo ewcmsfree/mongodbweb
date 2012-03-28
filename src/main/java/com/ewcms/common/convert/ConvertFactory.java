@@ -20,7 +20,7 @@ public enum ConvertFactory {
 
     instance;
     
-    private Map<Class<?>, Convertable<?>> converts;
+    private Map<Class<?>, Convert<?>> converts;
 
     private ConvertFactory() {
         converts = initConverts();
@@ -32,26 +32,25 @@ public enum ConvertFactory {
      * @param clazz 数据类型类
      * @return ParseTypeHandler
      */
-    @SuppressWarnings("unchecked")
-    public <I> Convertable<I> convertHandler(Class<? super I> clazz) {
+    public Convert<?> convert(Class<?> clazz) {
         
-        Convertable<?> convert = converts.get(clazz);
+        Convert<?> convert = converts.get(clazz);
         
         if(convert == null){
-            throw new IllegalStateException(clazz.getName()+" type cant not convert");
+            throw new java.lang.IllegalArgumentException(clazz.getName()+" type cant not convert");
         }
         
-        return (Convertable<I>)convert;
+        return convert;
     }
 
-    private Map<Class<?>, Convertable<?>> initConverts() {
-        Map<Class<?>, Convertable<?>> map = new HashMap<Class<?>, Convertable<?>>();
+    private Map<Class<?>, Convert<?>> initConverts() {
+        Map<Class<?>, Convert<?>> map = new HashMap<Class<?>, Convert<?>>();
 
         map.put(BigDecimal.class, new BigDecimalConvert());
         map.put(BigInteger.class, new BigIntegerConvert());
         map.put(Boolean.class, new BooleanConvert());
         map.put(Byte.class, new ByteConvert());
-        map.put(java.util.Date.class, new DateConvert());
+        map.put(java.util.Date.class, new UtilDateConvert());
         map.put(Double.class, new DoubleConvert());
         map.put(Float.class, new FloatConvert());
         map.put(Integer.class, new IntegerConvert());

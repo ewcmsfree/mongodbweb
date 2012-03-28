@@ -7,25 +7,30 @@
 package com.ewcms.common.convert;
 
 /**
- *  转换成布尔型boolean
- *  
- *  if(value = "true") //忽略大小写
- *       return true;
- *  else
- *       return false;
+ *  转换成{@link Boolean}
  *       
  *  @author WangWei
  */
-class BooleanConvert implements Convertable<Boolean> {
+class BooleanConvert implements Convert<Boolean> {
 
     @Override
     public Boolean parse(String value)throws ConvertException {
         return Boolean.valueOf(value);
     }
+    
+    @Override
+	public Boolean parseFor(String patter, String value)throws ConvertException {
+		 return Boolean.valueOf(value);
+	}
 
     @Override
-    public String parseString(Boolean value) {
-        return value ? "true":"false";
+    public String toString(Boolean value) {
+        return value.toString();
     }
+
+	@Override
+	public String format(String patter, Boolean value) {
+		return value.toString();
+	}
 
 }

@@ -12,42 +12,34 @@ import java.text.SimpleDateFormat;
 import java.text.DateFormat;
 
 /**
- * 转换成Time数据类型
- * <p>时间格式<code>hh:mm:ss</code></p>
+ * 转换成{@link java.sql.Time}，时间格式{@code hh:mm:ss}。
  * 
  * @author WangWei
  */
-class SqlTimeConvert implements ConvertDateable<Time> {
+class SqlTimeConvert extends DateConvert<Time> {
 
-    private final static DateFormat DEFAULT = new SimpleDateFormat("HH:mm:ss");
-    private SimpleDateFormat format;
+    private final static DateFormat DEFAULT_FORMAT = new SimpleDateFormat("HH:mm:ss");
 
-    @Override
-    public void setFormat(String format) {
-        this.format = new SimpleDateFormat(format);
-    }
-
+    /**
+     * 格式为{@code hh:mm:ss}
+     */
     @Override
     public Time parse(String value)throws ConvertException {
-
         try {
-            if(format != null){
-                return new Time(format.parse(value).getTime());
-            }
-            return new Time(DEFAULT.parse(value).getTime());
+            return new Time(DEFAULT_FORMAT.parse(value).getTime());
         } catch (ParseException e) {
             throw new ConvertException(e);
         }
     }
 
     @Override
-    public String parseString(Time value) {
-        if (format != null) {
-            return format.format(value);
-        } else {
-            return DEFAULT.format(value);
-        }
+    public String toString(Time value) {
+        return DEFAULT_FORMAT.format(value);
     }
 
+	@Override
+	protected Time toValue(long time) {
+		return new Time(time);
+	}
 
 }

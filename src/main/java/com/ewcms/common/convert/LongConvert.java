@@ -7,11 +7,11 @@
 package com.ewcms.common.convert;
 
 /**
- * 转换成Long数据类型
+ * 转换成{@link Long}
  *  
  * @author WangWei
  */
-class LongConvert implements Convertable<Long> {
+class LongConvert extends NumberConvert<Long> {
 
     @Override
     public Long parse(String value)throws ConvertException {
@@ -21,9 +21,9 @@ class LongConvert implements Convertable<Long> {
             throw new ConvertException(e);
         }
     }
-
-    @Override
-    public String parseString(Long value) {
-        return String.valueOf(value.longValue());
-    }
+    
+	@Override
+	protected Long toValue(Number number) {
+		return number.longValue();
+	}
 }

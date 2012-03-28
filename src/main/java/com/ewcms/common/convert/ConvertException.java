@@ -11,7 +11,7 @@
 package com.ewcms.common.convert;
 
 /**
- * 转换异常
+ * 数据转换异常
  *
  * @author WangWei
  */

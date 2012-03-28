@@ -32,7 +32,7 @@ public class QueryImplTest {
 	public void testNewQueryNotWhere(){
 		QueryImpl<Person> query = 
 				(QueryImpl<Person>)new QueryImpl
-				.NotWhere<Person>(mongoOperations)
+				.NoWhere<Person>(mongoOperations)
 				.build();
 		Assert.assertNotNull(query);
 	}
