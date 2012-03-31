@@ -21,13 +21,21 @@ import java.util.Map;
  */
 public enum ConvertFactory {
 
-    instance(new GregorianCalendar()),
-    instanceGMT(new GregorianCalendar(new SimpleTimeZone(0,"GMT")));
+	/**
+	 * 实现{@link ConvertFactory},日期转换以本地时间为准
+	 */
+    instance(new GregorianCalendar(),false),
+    /**
+	 * 实现{@link ConvertFactory},日期转换以GMT（格林威治）时间为准
+	 */
+    instanceGMT(new GregorianCalendar(new SimpleTimeZone(0,"GMT")),true);
     
     private final Map<Class<?>, Convert<?>> converts;
+    private final boolean gmt;
 
-    ConvertFactory(Calendar calendar) {
+    ConvertFactory(Calendar calendar,boolean gmt) {
         converts = initConverts(calendar);
+        this.gmt = gmt;
     }
 
     /**
@@ -42,6 +50,10 @@ public enum ConvertFactory {
             throw new IllegalArgumentException(clazz.getName() + " type cant not convert");
         }
         return convert;
+    }
+    
+    public boolean isGMT(){
+    	return gmt;
     }
     
     private Map<Class<?>, Convert<?>> initConverts(Calendar calendar) {
