@@ -7,6 +7,8 @@
 package com.ewcms.common.query.mongo;
 
 import java.beans.PropertyDescriptor;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,7 @@ import com.ewcms.common.convert.ConvertFactory;
 public class PropertyConvert {
 
 	private static final Logger logger = LoggerFactory.getLogger(PropertyConvert.class);
+	private static final Map<Class<?>,Class<?>> primitiveWrapper = initPrimitiveWrapper();
 	private static final String NESTED = ".";
 
 	private final Class<?> beanClass;
@@ -70,30 +73,83 @@ public class PropertyConvert {
 	 * @return
 	 * @throws ConvertException
 	 */
-	public Object convert(String propertyName, String value)throws ConvertException {
+	public Object convert(String propertyName, Object value)throws ConvertException {
+		if(isNull(value)){
+			return value;
+		}
+		
 		Class<?> propertyType = getPropertyType(propertyName);
-		return value == null 
-				? null : ConvertFactory
-						.instance
-						.convert(propertyType)
-						.parse(value);
+		return sameType(propertyType,value) 
+				? value : ConvertFactory
+				          .instanceGMT
+				          .convert(propertyType)
+				          .parse(value.toString());
+	}
+	
+	
+	/**
+	 * 判断值是否为{@value null}或与指定类型相同。
+	 * 
+	 * @param type 指定类型
+	 * @param value 值
+	 * @return
+	 */
+	private boolean isNull(Object value){
+		return value == null ;
+	}
+	
+	/**
+	 * 判断值是否为{@value null}或与指定类型相同。
+	 * 
+	 * @param type 指定类型
+	 * @param value 值
+	 * @return
+	 */
+	private boolean sameType(Class<?> type,Object value){
+		if(type.isPrimitive()){
+			Class<?> wapper = primitiveWrapper.get(type);
+			if(wapper == null){
+				throw new IllegalArgumentException(type.getName()+" wapper is not exist!");
+			}
+			return wapper == value.getClass();
+		}
+		return type == value.getClass();
 	}
 	
 	/**
 	 * 根据{@code propertyName}按照指定格式{@code patter}把{@code value}转换成对应类型值。
 	 * 
 	 * @param propertyName 属性名，不能为{@literal null}
-	 * @param patter 格式模版
+	 * @param patter 格式模版,可以为{@literal null}
 	 * @param value 值
 	 * @return
 	 * @throws ConvertException
 	 */
-	public Object convertFormat(String propertyName,String patter,String value)throws ConvertException{
+	public Object convertFormat(String propertyName,String patter,Object value)throws ConvertException{
+		
+		if(isNull(value)){
+			return value;
+		}
+		
 		Class<?> propertyType = getPropertyType(propertyName);
-		return value == null 
-				? null : ConvertFactory
-				        .instance
-				        .convert(propertyType)
-				        .parseFor(patter,value);
+		return sameType(propertyType,value) 
+				? value : ConvertFactory
+				          .instanceGMT
+				          .convert(propertyType)
+				          .parseFor(patter,value.toString());
+	}
+	
+	private static Map<Class<?>,Class<?>> initPrimitiveWrapper(){
+		Map<Class<?>,Class<?>> map = new HashMap<Class<?>,Class<?>>();
+		
+		map.put(int.class, Integer.class);
+		map.put(short.class, Short.class);
+		map.put(long.class, Long.class);
+		map.put(float.class, Float.class);
+		map.put(double.class, Double.class);
+		map.put(boolean.class, Boolean.class);
+		map.put(byte.class, Byte.class);
+		
+		return map;
 	}
 }

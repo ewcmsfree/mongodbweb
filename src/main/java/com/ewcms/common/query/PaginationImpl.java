@@ -16,7 +16,7 @@ public class PaginationImpl implements Pagination{
 	private final int number;
 	
 	/**
-	 * 构造{@link PaginationImpl}
+	 * 创建{@link PaginationImpl}实现
 	 * 
 	 * @param size 页面大小,必须大于零。
 	 * @param number 页数从零开始。

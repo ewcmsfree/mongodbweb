@@ -10,6 +10,11 @@ import static org.junit.Assert.assertEquals;
 
 import java.sql.Date;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.SimpleTimeZone;
+import java.util.TimeZone;
+
+import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +39,16 @@ public class DateConvertTest {
 		Date date = handler.parseFor("yyyy/MM/dd", test);
 		assertEqualsDate(date, 2006, 0, 12);
 	}
+	
+	@Test
+	public void testTimeZoneOfParseForFormat() throws Exception {
+		String test = "2006/01/12";
+		DateConvertImpl handlerGMT = new DateConvertImpl(new GregorianCalendar(new SimpleTimeZone(0,"GMT")));
+		Date dateGMT = handlerGMT.parseFor("yyyy/MM/dd", test);
+		
+		Date dateLocale = handler.parseFor("yyyy/MM/dd", test);
+		Assert.assertEquals(TimeZone.getDefault().getRawOffset(), dateGMT.getTime() - dateLocale.getTime());
+	}
 
 	private void assertEqualsDate(Date date, int year, int month, int day) {
 		Calendar calendar = Calendar.getInstance();
@@ -50,9 +65,27 @@ public class DateConvertTest {
 		assertEquals(handler.format("yyyy/MM/dd", testDate),
 				"2006/01/12");
 	}
+	
+	@Test
+	public void testTimeZoneOfFormat()throws Exception{
+		String test = "2006-01-12";
+		Date date = handler.parseFor("yyyy-MM-dd",test);
+		DateConvertImpl handlerGMT = new DateConvertImpl(new GregorianCalendar(new SimpleTimeZone(0,"GMT")));
+		String gmt = handlerGMT.format("yyyy/MM/dd HH:ss:mm", date);
+		Date dateGMT = handler.parseFor("yyyy/MM/dd HH:ss:mm",gmt);
+		Assert.assertEquals(TimeZone.getDefault().getRawOffset(), date.getTime() -  dateGMT.getTime());	
+	}
 
 	private class DateConvertImpl extends DateConvert<Date> {
 
+		DateConvertImpl(){
+			super();
+		}
+		
+		DateConvertImpl(Calendar calendar){
+			super(calendar);
+		}
+		
 		@Override
 		public Date parse(String value) throws ConvertException {
 			// not test

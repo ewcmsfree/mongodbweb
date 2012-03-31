@@ -57,6 +57,14 @@ public class PropertyConvertTest {
 	}
 	
 	@Test
+	public void testConvertValueNotDateSameType()throws ConvertException{
+		PropertyConvert convert = new PropertyConvert(Person.class);
+		Boolean man = Boolean.TRUE;
+		Object value = convert.convert("man", Boolean.TRUE);
+		Assert.assertTrue(man.equals(value));
+	}
+	
+	@Test
 	public void testConvert(){
 		try{
 			PropertyConvert convert = new PropertyConvert(Person.class);
@@ -66,8 +74,6 @@ public class PropertyConvertTest {
 			
 			value = convert.convert("birthday", "1980-01-01");
 			Assert.assertEquals(Date.class, value.getClass());
-			DateFormat dateFormat =new SimpleDateFormat("yyyy-MM-dd");
-			Assert.assertEquals("1980-01-01", dateFormat.format((Date)value));
 		}catch(ConvertException e){
 			Assert.fail(e.toString());
 		}
@@ -88,6 +94,19 @@ public class PropertyConvertTest {
 			Assert.assertEquals(Date.class, value.getClass());
 			DateFormat dateFormat =new SimpleDateFormat("yyyy-MM-dd");
 			Assert.assertEquals("1980-01-01", dateFormat.format((Date)value));
+		}catch(ConvertException e){
+			Assert.fail(e.toString());
+		}
+	}
+	
+	@Test
+	public void testConvertFormatPatterIsNull(){
+		try{
+			PropertyConvert convert = new PropertyConvert(Person.class);
+			Object value = convert.convertFormat("birthday",null, "1980-01-01");
+			Assert.assertEquals(Date.class, value.getClass());
+			DateFormat dateFormat =new SimpleDateFormat("yyyy/MM/dd");
+			Assert.assertEquals("1980/01/01", dateFormat.format((Date)value));
 		}catch(ConvertException e){
 			Assert.fail(e.toString());
 		}

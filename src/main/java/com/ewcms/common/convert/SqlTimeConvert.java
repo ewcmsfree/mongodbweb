@@ -7,9 +7,9 @@
 package com.ewcms.common.convert;
 
 import java.sql.Time;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 /**
  * 转换成{@link java.sql.Time}，时间格式{@code hh:mm:ss}。
@@ -18,23 +18,29 @@ import java.text.DateFormat;
  */
 class SqlTimeConvert extends DateConvert<Time> {
 
-    private final static DateFormat DEFAULT_FORMAT = new SimpleDateFormat("HH:mm:ss");
+    private final static String DEFAULT_PATTER = "HH:mm:ss";
 
+    public SqlTimeConvert(){
+    	super();
+    }
+    
+    public SqlTimeConvert(Calendar calendar){
+    	super(calendar);
+    }
+    
     /**
      * 格式为{@code hh:mm:ss}
      */
     @Override
     public Time parse(String value)throws ConvertException {
-        try {
-            return new Time(DEFAULT_FORMAT.parse(value).getTime());
-        } catch (ParseException e) {
-            throw new ConvertException(e);
-        }
+    	DateFormat format = new SimpleDateFormat(DEFAULT_PATTER);
+    	return parse(format,value);
     }
 
     @Override
     public String toString(Time value) {
-        return DEFAULT_FORMAT.format(value);
+    	DateFormat format = new SimpleDateFormat(DEFAULT_PATTER);
+        return format(format,value);
     }
 
 	@Override

@@ -8,6 +8,9 @@ package com.ewcms.common.convert;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.SimpleTimeZone;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,47 +21,52 @@ import java.util.Map;
  */
 public enum ConvertFactory {
 
-    instance;
+    instance(new GregorianCalendar()),
+    instanceGMT(new GregorianCalendar(new SimpleTimeZone(0,"GMT")));
     
-    private Map<Class<?>, Convert<?>> converts;
+    private final Map<Class<?>, Convert<?>> converts;
 
-    private ConvertFactory() {
-        converts = initConverts();
+    ConvertFactory(Calendar calendar) {
+        converts = initConverts(calendar);
     }
 
     /**
      * 根据Class类型 返回转换类型操作
      * 
-     * @param clazz 数据类型类
-     * @return ParseTypeHandler
+     * @param clazz 数据类型
+     * @return 
      */
     public Convert<?> convert(Class<?> clazz) {
-        
         Convert<?> convert = converts.get(clazz);
-        
         if(convert == null){
-            throw new java.lang.IllegalArgumentException(clazz.getName()+" type cant not convert");
+            throw new IllegalArgumentException(clazz.getName() + " type cant not convert");
         }
-        
         return convert;
     }
-
-    private Map<Class<?>, Convert<?>> initConverts() {
+    
+    private Map<Class<?>, Convert<?>> initConverts(Calendar calendar) {
         Map<Class<?>, Convert<?>> map = new HashMap<Class<?>, Convert<?>>();
 
         map.put(BigDecimal.class, new BigDecimalConvert());
         map.put(BigInteger.class, new BigIntegerConvert());
         map.put(Boolean.class, new BooleanConvert());
+        map.put(boolean.class, new BooleanConvert());
         map.put(Byte.class, new ByteConvert());
-        map.put(java.util.Date.class, new UtilDateConvert());
+        map.put(byte.class, new ByteConvert());
         map.put(Double.class, new DoubleConvert());
+        map.put(double.class, new DoubleConvert());
         map.put(Float.class, new FloatConvert());
+        map.put(float.class, new FloatConvert());
         map.put(Integer.class, new IntegerConvert());
+        map.put(int.class, new IntegerConvert());
         map.put(Long.class, new LongConvert());
+        map.put(long.class, new LongConvert());
         map.put(Short.class, new ShortConvert());
-        map.put(java.sql.Date.class, new SqlDateConvert());
-        map.put(java.sql.Timestamp.class, new SqlTimestampConvert());
-        map.put(java.sql.Time.class, new SqlTimeConvert());
+        map.put(short.class, new ShortConvert());
+        map.put(java.util.Date.class, new UtilDateConvert(calendar));
+        map.put(java.sql.Date.class, new SqlDateConvert(calendar));
+        map.put(java.sql.Timestamp.class, new SqlTimestampConvert(calendar));
+        map.put(java.sql.Time.class, new SqlTimeConvert(calendar));
         map.put(String.class, new StringConvert());
 
         return map;

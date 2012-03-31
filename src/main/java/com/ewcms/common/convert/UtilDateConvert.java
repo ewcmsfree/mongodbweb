@@ -6,9 +6,9 @@
 
 package com.ewcms.common.convert;
 
-import java.text.ParseException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -18,33 +18,36 @@ import java.util.Date;
  */
 class UtilDateConvert extends DateConvert<Date> {
 
-    private final static DateFormat DEFAULT_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private final static DateFormat SHORT_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+    private final static String DEFAULT_PATTER = "yyyy-MM-dd HH:mm:ss";
+    private final static String SHORT_PATTER = "yyyy-MM-dd";
     private final static int SHORT_LENGTH = 10;
 
-    private boolean isShortFormat(String value) {
-        return value.trim().length() <= SHORT_LENGTH;
+    public UtilDateConvert(){
+    	super();
     }
-
+    
+    public UtilDateConvert(Calendar calendar){
+    	super(calendar);
+    }
+    
     /**
      * 格式为{@code yyyy-MM-dd}或{@code yyyy-MM-dd HH:mm:ss}
      */
     @Override
     public Date parse(String value) throws ConvertException {
-        try {
-            if (isShortFormat(value)) {
-                return SHORT_FORMAT.parse(value);
-            } else {
-                return DEFAULT_FORMAT.parse(value);
-            }
-        } catch (ParseException e) {
-            throw new ConvertException(e);
-        }
+    	String patter = isShortFormat(value) ? SHORT_PATTER : DEFAULT_PATTER;
+    	DateFormat format = new SimpleDateFormat(patter);
+        return parse(format,value);
+    }
+    
+    private boolean isShortFormat(String value) {
+        return value.trim().length() <= SHORT_LENGTH;
     }
 
     @Override
     public String toString(Date value) {
-    	return DEFAULT_FORMAT.format(value);
+    	DateFormat format = new SimpleDateFormat(DEFAULT_PATTER);
+    	return format(format,value);
     }
 
 	@Override
