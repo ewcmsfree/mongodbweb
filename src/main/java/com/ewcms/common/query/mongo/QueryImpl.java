@@ -3,7 +3,6 @@
  * EWCMS PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  * http://www.ewcms.com
  */
-
 package com.ewcms.common.query.mongo;
 
 import java.util.Collection;
@@ -11,6 +10,7 @@ import java.util.List;
 
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.util.StringUtils;
 
 import com.ewcms.common.convert.ConvertException;
 import com.ewcms.common.query.Pagination;
@@ -120,7 +120,7 @@ public class QueryImpl<T> implements Query<T> {
 				throw new IllegalArgumentException("key must not null!");
 			}
 			this.operations = operations;
-			this.criteria = Criteria.where(key);
+			this.criteria = CriteriaWapper.where(key);
 			this.entityType = entityType;
 			this.convert = new PropertyConvert(entityType);
 		}
@@ -174,10 +174,12 @@ public class QueryImpl<T> implements Query<T> {
 		 * @param o
 		 * @param operation 规则操作{@link CriteraOperation}
 		 */
-		private void setCriteriaOperation(Object o, CriteriaOperation operation) {
+		protected void setCriteriaOperation(Object o, CriteriaOperation operation) {
 			try {
 				Object c = convert.convert(criteria.getKey(), o);
-				operation.Operator(c);
+				if(c != null){
+					operation.Operator(c);	
+				}
 			} catch (ConvertException e) {
 				// TODO 设置错误信息
 			}
@@ -200,10 +202,12 @@ public class QueryImpl<T> implements Query<T> {
 			return this;
 		}
 		
-		private void setCriteriaOperation(Object o, CriteriaOperation operation,String patter) {
+		protected void setCriteriaOperation(Object o, CriteriaOperation operation,String patter) {
 			try {
 				Object c = convert.convertFormat(criteria.getKey(), patter, o);
-				operation.Operator(c);
+				if(c != null){
+					operation.Operator(c);	
+				}
 			} catch (ConvertException e) {
 				// TODO 设置错误信息
 			}
@@ -219,7 +223,7 @@ public class QueryImpl<T> implements Query<T> {
 			setCriteriaOperation(o,new CriteriaOperation(){
 				@Override
 				public void Operator(Object o) {
-					criteria.ne(o);		
+					criteria.ne(o);	
 				}
 			});
 			return this;
@@ -387,13 +391,84 @@ public class QueryImpl<T> implements Query<T> {
 			return this;
 		}
 		
-		public Where<T> regex(String re) {
-			criteria.regex(re);
+		/**
+		 * 创建两个值之间（{@code lo < x < hi}）规则，值可根据设定的模版转换
+		 * 
+		 * @param lo 下界
+		 * @param hi 上届
+		 * @return
+		 */
+		public Where<T> between(Object lo,Object hi,String patter){
+			gt(lo,patter);
+			lt(hi,patter);
 			return this;
 		}
-
+		
+		/**
+		 * 创建正则表达式规则
+		 * 
+		 * @param re 表达式
+		 * @return
+		 */
+		public Where<T> regex(String re) {
+			if(StringUtils.hasText(re)){
+				criteria.regex(re);
+			}
+			return this;
+		}
+		
+		/**
+		 * 创建正则表达式规则
+		 * 
+		 * @param re 表达式
+		 * @param options
+		 * @return
+		 */
 		public Where<T> regex(String re, String options) {
-			criteria.regex(re, options);
+			if(StringUtils.hasText(re)){
+				criteria.regex(re, options);
+			}
+			return this;
+		}
+		
+		/**
+		 * 创建匹配开始字符串规则,简化{@link regex}用法
+		 * 
+		 * @param re 匹配字符串
+		 * @return
+		 */
+		public Where<T> likeStart(String re){
+			if(StringUtils.hasText(re)){
+				String startRe = (re.startsWith("^") ? re : "^" + re);
+				criteria.regex(startRe);
+			}
+			return this;
+		}
+		
+		/**
+		 * 创建匹配任何位置字符串规则,简化{@link regex}用法
+		 * 
+		 * @param re 匹配字符串
+		 * @return
+		 */
+		public Where<T> likeAny(String re){
+			if(StringUtils.hasText(re)){
+				criteria.regex(re);
+			}
+			return this;
+		}
+		
+		/**
+		 * 创建匹配结束字符串规则,简化{@link regex}用法
+		 * 
+		 * @param re 匹配字符串
+		 * @return
+		 */
+		public Where<T> likeEnd(String re){
+			if(StringUtils.hasText(re)){
+				String endRe = (re.endsWith("$") ? re :  re + "$");
+				criteria.regex(endRe);
+			}
 			return this;
 		}
 		
@@ -451,8 +526,6 @@ public class QueryImpl<T> implements Query<T> {
 			criteria.not();
 			return this;
 		}
-
-		
 
 		public Where<T> elemMatch(Criteria c) {
 			criteria.elemMatch(c);

@@ -17,6 +17,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.ewcms.common.query.Query;
 import com.ewcms.common.query.Result;
 import com.ewcms.common.query.model.Certificate;
+import com.ewcms.common.query.mongo.QueryImpl.Where.CriteriaOperation;
 
 /**
  * 单元测试{@link QueryImpl}
@@ -53,6 +54,18 @@ public class QueryImplTest {
 	}
 	
 	@Test
+	public void testSetCriteriaOperationIsNull(){
+		QueryImpl.Where<Certificate> where = new QueryImpl
+				.Where<Certificate>(mongoOperations,Certificate.class,"name");
+		where.setCriteriaOperation(null, new CriteriaOperation(){
+			@Override
+			public void Operator(Object o) {
+				Assert.fail();
+			}
+		});
+	}
+	
+	@Test
 	public void testIsOfWhere(){
 		Query<Certificate> query = new QueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"name")
@@ -61,6 +74,18 @@ public class QueryImplTest {
 		Result<Certificate>  result = query.find();
 		Assert.assertEquals(1, result.getNumberOfElements());
 		Assert.assertEquals("王伟", result.getContent().get(0).getName());
+	}
+	
+	@Test
+	public void testSetCriteriaOperationFormatIsNull(){
+		QueryImpl.Where<Certificate> where = new QueryImpl
+				.Where<Certificate>(mongoOperations,Certificate.class,"limit");
+		where.setCriteriaOperation(null, new CriteriaOperation(){
+			@Override
+			public void Operator(Object o) {
+				Assert.fail();
+			}
+		},"#.00");
 	}
 	
 	@Test
@@ -183,6 +208,88 @@ public class QueryImplTest {
 		Result<Certificate> result = query.find();
 		Assert.assertEquals(1, result.getNumberOfElements());
 		Assert.assertEquals("王伟", result.getContent().get(0).getName());
+	}
+	
+	@Test
+	public void testBetweenFormatOfWhere(){
+		Query<Certificate> query = new QueryImpl
+				.Where<Certificate>(mongoOperations,Certificate.class,"brithdate")
+				.between("1976/12/23","1976/12/25","yyyy/MM/dd")
+				.build();	
+		Result<Certificate> result = query.find();
+		Assert.assertEquals(1, result.getNumberOfElements());
+		Assert.assertEquals("王伟", result.getContent().get(0).getName());
+	}
+	
+	@Test
+	public void testRegexOfWhere(){
+		Query<Certificate> query = new QueryImpl
+				.Where<Certificate>(mongoOperations,Certificate.class,"name")
+				.regex("^王")
+				.build();	
+		Result<Certificate> result = query.find();
+		Assert.assertEquals(6, result.getNumberOfElements());
+	}
+	
+	@Test
+	public void testRegexOptionsOfWhere(){
+		Query<Certificate> query = new QueryImpl
+				.Where<Certificate>(mongoOperations,Certificate.class,"name")
+				.regex("^王","i")
+				.build();	
+		Result<Certificate> result = query.find();
+		Assert.assertEquals(6, result.getNumberOfElements());
+	}
+	
+	@Test
+	public void testLikeStartOfWhere(){
+		Query<Certificate> query = new QueryImpl
+				.Where<Certificate>(mongoOperations,Certificate.class,"name")
+				.likeStart("王")
+				.build();
+		Result<Certificate> result = query.find();
+		Assert.assertEquals(6, result.getNumberOfElements());
+	}
+	
+	@Test
+	public void testLikeStartPrefixRegexOfWhere(){
+		Query<Certificate> query = new QueryImpl
+				.Where<Certificate>(mongoOperations,Certificate.class,"name")
+				.likeStart("^王")
+				.build();
+		Result<Certificate> result = query.find();
+		Assert.assertEquals(6, result.getNumberOfElements());
+	}
+	
+	@Test
+	public void testLikeAnyOfWhere(){
+		Query<Certificate> query = new QueryImpl
+				.Where<Certificate>(mongoOperations,Certificate.class,"name")
+				.likeAny("小")
+				.build();
+		
+		Result<Certificate> result = query.find();
+		Assert.assertEquals(2, result.getNumberOfElements());
+	}
+	
+	@Test
+	public void testLikeEndOfWhere(){
+		Query<Certificate> query = new QueryImpl
+				.Where<Certificate>(mongoOperations,Certificate.class,"name")
+				.likeEnd("华")
+				.build();
+		Result<Certificate> result = query.find();
+		Assert.assertEquals(7, result.getNumberOfElements());
+	}
+	
+	@Test
+	public void testLikeEndSuffixRegexOfWhere(){
+		Query<Certificate> query = new QueryImpl
+				.Where<Certificate>(mongoOperations,Certificate.class,"name")
+				.likeEnd("华$")
+				.build();
+		Result<Certificate> result = query.find();
+		Assert.assertEquals(7, result.getNumberOfElements());
 	}
 	
 	@Test

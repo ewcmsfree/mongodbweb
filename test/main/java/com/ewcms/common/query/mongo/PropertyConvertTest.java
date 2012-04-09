@@ -23,6 +23,18 @@ import com.ewcms.common.convert.ConvertException;
  */
 public class PropertyConvertTest {
 
+	@Test
+	public void testNewInstanceGMT(){
+		PropertyConvert resolver = new PropertyConvert(Person.class);
+		Assert.assertTrue(resolver.isGMTTime());
+	}
+	
+	@Test
+	public void testNewInstanceNotGMT(){
+		PropertyConvert resolver = new PropertyConvert(Person.class,false);
+		Assert.assertFalse(resolver.isGMTTime());
+	}
+	
 	@Test(expected=RuntimeException.class)
 	public void testGetPropertyTypeIsNotExists(){
 		PropertyConvert resolver = new PropertyConvert(Person.class);

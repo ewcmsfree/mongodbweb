@@ -27,13 +27,13 @@ public class ConvertFactoryTest {
 	@Test
 	public void testInstanceNotGMT(){
 		ConvertFactory factory = ConvertFactory.instance;
-		Assert.assertFalse(factory.isGMT());
+		Assert.assertFalse(factory.isGMTTime());
 	}
 	
 	@Test
 	public void testInstanceGMT(){
 		ConvertFactory factory = ConvertFactory.instanceGMT;
-		Assert.assertTrue(factory.isGMT());
+		Assert.assertTrue(factory.isGMTTime());
 	}
 	
     @Test

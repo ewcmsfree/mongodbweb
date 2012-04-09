@@ -9,6 +9,8 @@ package com.ewcms.common.convert;
 import static org.junit.Assert.assertEquals;
 
 import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.SimpleTimeZone;
@@ -33,6 +35,13 @@ public class DateConvertTest {
 		handler = new DateConvertImpl();
 	}
 
+	@Test
+	public void testParseForFormatPatterIsNull() throws Exception {
+		String test = "2006/01/12";
+		Date date = handler.parseFor(null, test);
+		assertEqualsDate(date, 2006, 0, 12);
+	}
+	
 	@Test
 	public void testParseForFormat() throws Exception {
 		String test = "2006/01/12";
@@ -88,8 +97,12 @@ public class DateConvertTest {
 		
 		@Override
 		public Date parse(String value) throws ConvertException {
-			// not test
-			return null;
+			SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+			try {
+				return new Date(format.parse(value).getTime());
+			} catch (ParseException e) {
+				throw new ConvertException(e);
+			}
 		}
 
 		@Override

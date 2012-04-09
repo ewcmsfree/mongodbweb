@@ -31,11 +31,11 @@ public enum ConvertFactory {
     instanceGMT(new GregorianCalendar(new SimpleTimeZone(0,"GMT")),true);
     
     private final Map<Class<?>, Convert<?>> converts;
-    private final boolean gmt;
+    private final boolean gmtTime;
 
-    ConvertFactory(Calendar calendar,boolean gmt) {
+    ConvertFactory(Calendar calendar,boolean gmtTime) {
         converts = initConverts(calendar);
-        this.gmt = gmt;
+        this.gmtTime = gmtTime;
     }
 
     /**
@@ -52,8 +52,13 @@ public enum ConvertFactory {
         return convert;
     }
     
-    public boolean isGMT(){
-    	return gmt;
+	/**
+	 * 是否以格林威治(GMT)时间为标准
+	 * 
+	 * @return
+	 */
+    public boolean isGMTTime(){
+    	return gmtTime;
     }
     
     private Map<Class<?>, Convert<?>> initConverts(Calendar calendar) {

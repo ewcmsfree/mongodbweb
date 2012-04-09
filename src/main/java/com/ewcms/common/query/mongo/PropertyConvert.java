@@ -31,6 +31,7 @@ public class PropertyConvert {
 	private static final String NESTED = ".";
 
 	private final Class<?> beanClass;
+	private final boolean gmtTime;
 
 	/**
 	 * 创建{@link PropertyConvert}
@@ -38,9 +39,23 @@ public class PropertyConvert {
 	 * @param beanClass
 	 */
 	public PropertyConvert(Class<?> beanClass) {
-		this.beanClass = beanClass;
+		this(beanClass,true);
 	}
 
+	public PropertyConvert(Class<?> beanClass,boolean gmtTime){
+		this.beanClass = beanClass;
+		this.gmtTime = gmtTime;
+	}
+	
+	/**
+	 * 是否以格林威治(GMT)时间为标准
+	 * 
+	 * @return
+	 */
+	public boolean isGMTTime(){
+		return gmtTime;
+	}
+	
 	/**
 	 * 得到指定属性的类型，属性不存在或无法访问抛出{@link RuntimeException}异常。
 	 * 
@@ -79,11 +94,12 @@ public class PropertyConvert {
 		}
 		
 		Class<?> propertyType = getPropertyType(propertyName);
-		return sameType(propertyType,value) 
-				? value : ConvertFactory
-				          .instanceGMT
-				          .convert(propertyType)
-				          .parse(value.toString());
+		if(sameType(propertyType,value)){
+			return value;
+		}
+		
+		ConvertFactory factory = isGMTTime() ? ConvertFactory.instanceGMT : ConvertFactory.instance;
+		return factory.convert(propertyType).parse(value.toString());
 	}
 	
 	
@@ -131,12 +147,14 @@ public class PropertyConvert {
 			return value;
 		}
 		
+		
 		Class<?> propertyType = getPropertyType(propertyName);
-		return sameType(propertyType,value) 
-				? value : ConvertFactory
-				          .instanceGMT
-				          .convert(propertyType)
-				          .parseFor(patter,value.toString());
+		if(sameType(propertyType,value)){
+			return value;
+		}
+		
+		ConvertFactory factory = isGMTTime() ? ConvertFactory.instanceGMT : ConvertFactory.instance;
+		return factory.convert(propertyType).parseFor(patter,value.toString());
 	}
 	
 	private static Map<Class<?>,Class<?>> initPrimitiveWrapper(){

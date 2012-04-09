@@ -33,6 +33,9 @@ abstract class DateConvert<T extends Date> implements Convert<T> {
 	
 	@Override
 	public T parseFor(String patter, String value) throws ConvertException {
+		if(patter == null || patter.trim().equals("")){
+			return parse(value);
+		}
 		DateFormat format = new SimpleDateFormat(patter);
 		return parse(format,value);
 	}
