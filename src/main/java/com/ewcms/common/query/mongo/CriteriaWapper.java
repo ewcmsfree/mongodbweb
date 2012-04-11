@@ -45,7 +45,7 @@ public class CriteriaWapper extends Criteria {
 	public CriteriaWapper and(String key) {
 		return new CriteriaWapper(this.criteriaChain, key);
 	}
-
+	
 	protected DBObject getSingleCriteriaObject() {
 		DBObject dbo = super.getSingleCriteriaObject();
 		return hasCriteria(dbo) ? dbo : new BasicDBObject();

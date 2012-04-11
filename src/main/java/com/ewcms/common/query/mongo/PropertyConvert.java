@@ -7,6 +7,10 @@
 package com.ewcms.common.query.mongo;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.StringUtils;
 
+import com.ewcms.common.convert.Convert;
 import com.ewcms.common.convert.ConvertException;
 import com.ewcms.common.convert.ConvertFactory;
 
@@ -62,22 +67,42 @@ public class PropertyConvert {
 	 * @param name  属性名，不能为{@literal null}
 	 * @return 属性类型{@value Class<?>}
 	 */
-	public Class<?> getPropertyType(String name) {
-		if(name == null || name.trim().equals("")) {
-			throw new IllegalArgumentException("name must not null or empty!");
+	public Class<?> getPropertyType(String propertyName) {
+		if(!StringUtils.hasText(propertyName)) {
+			throw new IllegalArgumentException("Property's name must not null or empty!");
 		}
 		
-		String[] propertyNames =StringUtils.tokenizeToStringArray(name, NESTED);
-		Class<?> propertyType = beanClass;
-		for(String propertyName : propertyNames){
-			PropertyDescriptor pd = BeanUtils.getPropertyDescriptor(propertyType, propertyName);
+		String[] names =StringUtils.tokenizeToStringArray(propertyName, NESTED);
+		Class<?> type = beanClass;
+		PropertyDescriptor pd = null;
+		for(String name : names){
+			pd = BeanUtils.getPropertyDescriptor(type, name);
 			if (pd == null) {
 				logger.error("\"{}\" property isn't exist.", propertyName);
 				throw new RuntimeException(propertyName + " property isn't exist.");
 			}
-			propertyType = pd.getPropertyType();
+			type = pd.getPropertyType();
 		}
-		return propertyType;
+		
+		if(type.isArray()){
+			return type.getComponentType();
+		} 
+		
+		if(Collection.class.isAssignableFrom(type)){
+			Method method =  pd.getReadMethod();
+			if(method == null){
+				logger.error("\"{}\" property is not read method.",propertyName);
+				throw new RuntimeException( propertyName + " property is not read method.");
+			}
+			ParameterizedType returnType =(ParameterizedType) method.getGenericReturnType();
+			if(returnType.getActualTypeArguments().length > 0){
+				return (Class<?>)returnType.getActualTypeArguments()[0];
+			}
+			logger.error("\"{}\" property is collection,but it's not generic.",propertyName);
+			throw new RuntimeException( propertyName + " property is collection,but it's not generic.");
+		}
+		
+		return type;
 	}
 	
 	/**
@@ -89,17 +114,7 @@ public class PropertyConvert {
 	 * @throws ConvertException
 	 */
 	public Object convert(String propertyName, Object value)throws ConvertException {
-		if(isNull(value)){
-			return value;
-		}
-		
-		Class<?> propertyType = getPropertyType(propertyName);
-		if(sameType(propertyType,value)){
-			return value;
-		}
-		
-		ConvertFactory factory = isGMTTime() ? ConvertFactory.instanceGMT : ConvertFactory.instance;
-		return factory.convert(propertyType).parse(value.toString());
+		return convertFormat(propertyName,null,value);
 	}
 	
 	
@@ -132,6 +147,10 @@ public class PropertyConvert {
 		return type == value.getClass();
 	}
 	
+	private ConvertFactory getConvertFactory(){
+		return isGMTTime() ? ConvertFactory.instanceGMT : ConvertFactory.instance;
+	}
+	
 	/**
 	 * 根据{@code propertyName}按照指定格式{@code patter}把{@code value}转换成对应类型值。
 	 * 
@@ -142,7 +161,6 @@ public class PropertyConvert {
 	 * @throws ConvertException
 	 */
 	public Object convertFormat(String propertyName,String patter,Object value)throws ConvertException{
-		
 		if(isNull(value)){
 			return value;
 		}
@@ -153,8 +171,53 @@ public class PropertyConvert {
 			return value;
 		}
 		
-		ConvertFactory factory = isGMTTime() ? ConvertFactory.instanceGMT : ConvertFactory.instance;
-		return factory.convert(propertyType).parseFor(patter,value.toString());
+		Convert<?> convert = getConvertFactory().convert(propertyType);
+		return StringUtils.hasText(patter)? 
+				convert.parseFor(patter,value.toString())
+				:convert.parse(value.toString());
+	}
+	
+	/**
+	 * 使用{@code separator}把{@code value}分割成数组，再根据{@code propertyName}把数组中的值转换成对应类型值。
+	 * 
+	 * @param propertyName  属性名，不能为{@literal null}
+	 * @param in 匹配字符串按分割符分割
+	 * @param delimiter 分割符
+	 * @return
+	 * @throws ConvertException
+	 */
+	public Collection<?> convertCollection(String propertyName,String value,String delimiter)throws ConvertException{
+		return convertCollectionFormat(propertyName,null,value,delimiter);
+	}
+	
+	/**
+	 * 使用{@code separator}把{@code value}分割成数组，再根据{@code propertyName}按照指定格式{@code patter}把数组中的值转换成对应类型值。
+	 * 
+	 * @param propertyName  属性名，不能为{@literal null}
+	 * @param in 匹配字符串按分割符分割
+	 * @param delimiter 分割符
+	 * @return
+	 * @throws ConvertException
+	 */
+	public Collection<?> convertCollectionFormat(String propertyName,String patter,String value,String delimiter)throws ConvertException{
+		if(isNull(value)){
+			return null;
+		}
+		
+		String[] s = StringUtils.tokenizeToStringArray(value, delimiter);
+		Class<?> propertyType = getPropertyType(propertyName);
+		if(sameType(propertyType,String.class)){
+			return Arrays.asList(s);
+		}
+		
+		Object[] values = new Object[s.length];
+		Convert<?> convert = getConvertFactory().convert(propertyType);
+		for(int i = 0 ; i < s.length; i++){
+			values[i] =  StringUtils.hasText(patter) ? 
+					convert.parseFor(patter,s[i])
+					:convert.parse(s[i]);
+		}
+		return Arrays.asList(values);
 	}
 	
 	private static Map<Class<?>,Class<?>> initPrimitiveWrapper(){

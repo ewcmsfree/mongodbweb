@@ -5,6 +5,9 @@
  */
 package com.ewcms.common.query.mongo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,32 +17,32 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.ewcms.common.query.Query;
+import com.ewcms.common.query.EasyQuery;
 import com.ewcms.common.query.Result;
-import com.ewcms.common.query.model.Certificate;
-import com.ewcms.common.query.mongo.QueryImpl.Where.CriteriaOperation;
+import com.ewcms.common.query.mongo.EasyQueryImpl.Where.CriteriaOperation;
+import com.ewcms.common.query.mongo.model.Certificate;
 
 /**
- * 单元测试{@link QueryImpl}
+ * 单元测试{@link EasyQueryImpl}
  * 
  * @author wangwei
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:applicationContext.xml" })
-public class QueryImplTest {
+public class EasyQueryImplTest {
 
 	@Autowired
 	private MongoOperations mongoOperations;
 	
 	@Before
 	public void before()throws Exception{
-		QueryInit init = new QueryInit(mongoOperations);
+		EasyQueryInit init = new EasyQueryInit(mongoOperations);
 		init.init();
 	}
 	
 	@Test
 	public void testNewQueryNoWhere(){
-		Query<Certificate> query = new QueryImpl
+		EasyQuery<Certificate> query = new EasyQueryImpl
 				.NoWhere<Certificate>(mongoOperations,Certificate.class)
 				.build();
 		Assert.assertNotNull(query);
@@ -47,7 +50,7 @@ public class QueryImplTest {
 	
 	@Test
 	public void testNewQueryWhere(){
-		Query<Certificate> query =new QueryImpl
+		EasyQuery<Certificate> query =new EasyQueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"name")
 				.build();
 		Assert.assertNotNull(query);
@@ -55,9 +58,9 @@ public class QueryImplTest {
 	
 	@Test
 	public void testSetCriteriaOperationIsNull(){
-		QueryImpl.Where<Certificate> where = new QueryImpl
+		EasyQueryImpl.Where<Certificate> where = new EasyQueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"name");
-		where.setCriteriaOperation(null, new CriteriaOperation(){
+		where.setCriteriaOperation(null, new CriteriaOperation<Object>(){
 			@Override
 			public void Operator(Object o) {
 				Assert.fail();
@@ -67,7 +70,7 @@ public class QueryImplTest {
 	
 	@Test
 	public void testIsOfWhere(){
-		Query<Certificate> query = new QueryImpl
+		EasyQuery<Certificate> query = new EasyQueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"name")
 				.is("王伟")
 				.build();
@@ -78,9 +81,9 @@ public class QueryImplTest {
 	
 	@Test
 	public void testSetCriteriaOperationFormatIsNull(){
-		QueryImpl.Where<Certificate> where = new QueryImpl
+		EasyQueryImpl.Where<Certificate> where = new EasyQueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"limit");
-		where.setCriteriaOperation(null, new CriteriaOperation(){
+		where.setCriteriaOperation(null, new CriteriaOperation<Object>(){
 			@Override
 			public void Operator(Object o) {
 				Assert.fail();
@@ -90,7 +93,7 @@ public class QueryImplTest {
 	
 	@Test
 	public void testIsFormatOfWhere(){
-		Query<Certificate> query = new QueryImpl
+		EasyQuery<Certificate> query = new EasyQueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"limit")
 				.is("298.00","#.00")
 				.build();
@@ -101,7 +104,7 @@ public class QueryImplTest {
 	
 	@Test
 	public void testNeOfWhere(){
-		Query<Certificate> query = new QueryImpl
+		EasyQuery<Certificate> query = new EasyQueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"cerId")
 				.ne("72300125")
 				.build();
@@ -111,7 +114,7 @@ public class QueryImplTest {
 	
 	@Test
 	public void testNeFormatOfWhere(){
-		Query<Certificate> query = new QueryImpl
+		EasyQuery<Certificate> query = new EasyQueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"limit")
 				.ne("298.00","#.00")
 				.build();	
@@ -121,7 +124,7 @@ public class QueryImplTest {
 	
 	@Test
 	public void testLtOfWhere(){
-		Query<Certificate> query = new QueryImpl
+		EasyQuery<Certificate> query = new EasyQueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"limit")
 				.lt(298)
 				.build();	
@@ -131,7 +134,7 @@ public class QueryImplTest {
 	
 	@Test
 	public void testLtFormatOfWhere(){
-		Query<Certificate> query = new QueryImpl
+		EasyQuery<Certificate> query = new EasyQueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"limit")
 				.lt("298.00","#.00")
 				.build();	
@@ -141,7 +144,7 @@ public class QueryImplTest {
 	
 	@Test
 	public void testLteOfWhere(){
-		Query<Certificate> query = new QueryImpl
+		EasyQuery<Certificate> query = new EasyQueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"limit")
 				.lte(298)
 				.build();	
@@ -151,7 +154,7 @@ public class QueryImplTest {
 	
 	@Test
 	public void testLteFormatOfWhere(){
-		Query<Certificate> query = new QueryImpl
+		EasyQuery<Certificate> query = new EasyQueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"limit")
 				.lte("298.00","#.00")
 				.build();	
@@ -161,7 +164,7 @@ public class QueryImplTest {
 	
 	@Test
 	public void testGtOfWhere(){
-		Query<Certificate> query = new QueryImpl
+		EasyQuery<Certificate> query = new EasyQueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"limit")
 				.gt("298")
 				.build();	
@@ -171,7 +174,7 @@ public class QueryImplTest {
 	
 	@Test
 	public void testGtFormatOfWhere(){
-		Query<Certificate> query = new QueryImpl
+		EasyQuery<Certificate> query = new EasyQueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"limit")
 				.gt("298.00","#.00")
 				.build();	
@@ -181,7 +184,7 @@ public class QueryImplTest {
 	
 	@Test
 	public void testGteOfWhere(){
-		Query<Certificate> query = new QueryImpl
+		EasyQuery<Certificate> query = new EasyQueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"limit")
 				.gte("298")
 				.build();	
@@ -191,7 +194,7 @@ public class QueryImplTest {
 	
 	@Test
 	public void testGteFormatOfWhere(){
-		Query<Certificate> query = new QueryImpl
+		EasyQuery<Certificate> query = new EasyQueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"limit")
 				.gte("298.00","#.00")
 				.build();	
@@ -201,7 +204,7 @@ public class QueryImplTest {
 	
 	@Test
 	public void testBetweenOfWhere(){
-		Query<Certificate> query = new QueryImpl
+		EasyQuery<Certificate> query = new EasyQueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"brithdate")
 				.between("1976-12-23","1976-12-25")
 				.build();	
@@ -212,7 +215,7 @@ public class QueryImplTest {
 	
 	@Test
 	public void testBetweenFormatOfWhere(){
-		Query<Certificate> query = new QueryImpl
+		EasyQuery<Certificate> query = new EasyQueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"brithdate")
 				.between("1976/12/23","1976/12/25","yyyy/MM/dd")
 				.build();	
@@ -223,7 +226,7 @@ public class QueryImplTest {
 	
 	@Test
 	public void testRegexOfWhere(){
-		Query<Certificate> query = new QueryImpl
+		EasyQuery<Certificate> query = new EasyQueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"name")
 				.regex("^王")
 				.build();	
@@ -233,7 +236,7 @@ public class QueryImplTest {
 	
 	@Test
 	public void testRegexOptionsOfWhere(){
-		Query<Certificate> query = new QueryImpl
+		EasyQuery<Certificate> query = new EasyQueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"name")
 				.regex("^王","i")
 				.build();	
@@ -243,7 +246,7 @@ public class QueryImplTest {
 	
 	@Test
 	public void testLikeStartOfWhere(){
-		Query<Certificate> query = new QueryImpl
+		EasyQuery<Certificate> query = new EasyQueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"name")
 				.likeStart("王")
 				.build();
@@ -253,7 +256,7 @@ public class QueryImplTest {
 	
 	@Test
 	public void testLikeStartPrefixRegexOfWhere(){
-		Query<Certificate> query = new QueryImpl
+		EasyQuery<Certificate> query = new EasyQueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"name")
 				.likeStart("^王")
 				.build();
@@ -263,7 +266,7 @@ public class QueryImplTest {
 	
 	@Test
 	public void testLikeAnyOfWhere(){
-		Query<Certificate> query = new QueryImpl
+		EasyQuery<Certificate> query = new EasyQueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"name")
 				.likeAny("小")
 				.build();
@@ -274,7 +277,7 @@ public class QueryImplTest {
 	
 	@Test
 	public void testLikeEndOfWhere(){
-		Query<Certificate> query = new QueryImpl
+		EasyQuery<Certificate> query = new EasyQueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"name")
 				.likeEnd("华")
 				.build();
@@ -284,7 +287,7 @@ public class QueryImplTest {
 	
 	@Test
 	public void testLikeEndSuffixRegexOfWhere(){
-		Query<Certificate> query = new QueryImpl
+		EasyQuery<Certificate> query = new EasyQueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"name")
 				.likeEnd("华$")
 				.build();
@@ -293,9 +296,178 @@ public class QueryImplTest {
 	}
 	
 	@Test
+	public void testInForArrayOfWhere(){
+		EasyQuery<Certificate> query = new EasyQueryImpl
+				.Where<Certificate>(mongoOperations,Certificate.class,"name")
+				.in("王伟","周冬初")
+				.build();
+		Result<Certificate> result = query.find();
+		Assert.assertEquals(2, result.getNumberOfElements());
+	}
+	
+	@Test
+	public void testInForCollectionOfWhere(){
+		List<String> names = new ArrayList<String>();
+		names.add("王伟");
+		names.add("周冬初");
+		EasyQuery<Certificate> query = new EasyQueryImpl
+				.Where<Certificate>(mongoOperations,Certificate.class,"name")
+				.in(names)
+				.build();
+		Result<Certificate> result = query.find();
+		Assert.assertEquals(2, result.getNumberOfElements());
+	}
+	
+	@Test
+	public void testInSplitOfWhere(){
+		EasyQuery<Certificate> query = new EasyQueryImpl
+				.Where<Certificate>(mongoOperations, Certificate.class, "name")
+				.inSplit("王伟,周冬初")
+				.build();
+		
+		Result<Certificate> result = query.find();
+		Assert.assertEquals(2, result.getNumberOfElements());
+	}
+	
+	@Test
+	public void testInSplitForDelimiterOfWhere(){
+		EasyQuery<Certificate> query = new EasyQueryImpl
+				.Where<Certificate>(mongoOperations, Certificate.class, "name")
+				.inSplit("王伟,周冬初",",")
+				.build();
+		
+		Result<Certificate> result = query.find();
+		Assert.assertEquals(2, result.getNumberOfElements());
+	}
+	
+	@Test
+	public void testNinForArrayOfWhere(){
+		EasyQuery<Certificate> query = new EasyQueryImpl
+				.Where<Certificate>(mongoOperations,Certificate.class,"name")
+				.nin("王伟","周冬初")
+				.build();
+		Result<Certificate> result = query.find();
+		Assert.assertEquals(158, result.getNumberOfElements());
+	}
+	
+	@Test
+	public void testNinForCollectionOfWhere(){
+		List<String> names = new ArrayList<String>();
+		names.add("王伟");
+		names.add("周冬初");
+		EasyQuery<Certificate> query = new EasyQueryImpl
+				.Where<Certificate>(mongoOperations,Certificate.class,"name")
+				.nin(names)
+				.build();
+		Result<Certificate> result = query.find();
+		Assert.assertEquals(158, result.getNumberOfElements());
+	}
+	
+	@Test
+	public void testNinSplitOfWhere(){
+		EasyQuery<Certificate> query = new EasyQueryImpl
+				.Where<Certificate>(mongoOperations,Certificate.class,"name")
+				.ninSplit("王伟,周冬初")
+				.build();
+		
+		Result<Certificate> result = query.find();
+		Assert.assertEquals(158, result.getNumberOfElements());
+	}
+	
+	@Test
+	public void testNinSplitForDelimiterOfWhere(){
+		EasyQuery<Certificate> query = new EasyQueryImpl
+				.Where<Certificate>(mongoOperations,Certificate.class,"name")
+				.ninSplit("王伟|周冬初","|")
+				.build();
+		
+		Result<Certificate> result = query.find();
+		Assert.assertEquals(158, result.getNumberOfElements());
+	}
+	
+	@Test
+	public void testModOfWhere(){
+		EasyQuery<Certificate> query = new EasyQueryImpl
+				.Where<Certificate>(mongoOperations,Certificate.class,"limit")
+				.mod(10, 6)
+				.build();
+		Result<Certificate> result = query.find();
+		Assert.assertEquals(4, result.getNumberOfElements());
+	}
+	
+	@Test
+	public void testAllForArrayOfWhere(){
+		EasyQuery<Certificate> query = new EasyQueryImpl
+				.Where<Certificate>(mongoOperations,Certificate.class,"phones")
+				.all("12345678","87654321")
+				.build();
+		Result<Certificate> result = query.find();
+		Assert.assertEquals(1, result.getNumberOfElements());
+	}
+	
+	@Test
+	public void testAllForCollectionsOfWhere(){
+		List<String> phones = new ArrayList<String>();
+		phones.add("12345678");
+		EasyQuery<Certificate> query = new EasyQueryImpl
+				.Where<Certificate>(mongoOperations,Certificate.class,"phones")
+				.all(phones)
+				.build();
+		Result<Certificate> result = query.find();
+		Assert.assertEquals(2, result.getNumberOfElements());
+	}
+	
+	@Test
+	public void testAllSplitForWhere(){
+		EasyQuery<Certificate> query = new EasyQueryImpl
+				.Where<Certificate>(mongoOperations, Certificate.class, "phones")
+				.allSplit("12345678,87654321")
+				.build();
+		
+		Result<Certificate> result = query.find();
+		Assert.assertEquals(1, result.getNumberOfElements());
+	}
+	
+	@Test
+	public void testAllSplitForDelimiterOfWhere(){
+		EasyQuery<Certificate> query = new EasyQueryImpl
+				.Where<Certificate>(mongoOperations, Certificate.class, "phones")
+				.allSplit("12345678|87654321","|")
+				.build();
+		
+		Result<Certificate> result = query.find();
+		Assert.assertEquals(1, result.getNumberOfElements());
+	}
+	
+	@Test
+	public void testSizeOfWhere(){
+		EasyQuery<Certificate> query = new EasyQueryImpl
+				.Where<Certificate>(mongoOperations, Certificate.class, "phones")
+				.size(3)
+				.build();
+		
+		Result<Certificate> result = query.find();
+		Assert.assertEquals(1, result.getNumberOfElements());
+		Assert.assertEquals(result.getContent().get(0).getName(), "周冬初");
+	}
+	
+	
+	@Test
+	public void testNotOfWhere(){
+		EasyQuery<Certificate> query = new EasyQueryImpl
+				.Where<Certificate>(mongoOperations, Certificate.class, "limit")
+				.not()
+				.gte(298)
+				.build();
+		
+		Result<Certificate> result = query.find();
+		Assert.assertEquals(4, result.getNumberOfElements());
+	}
+	
+	@Test
 	public void testAndOfWhere(){
-		QueryImpl<Certificate> query = 
-				(QueryImpl<Certificate>)new QueryImpl
+		EasyQueryImpl<Certificate> query = 
+				(EasyQueryImpl<Certificate>)new EasyQueryImpl
 				.Where<Certificate>(mongoOperations,Certificate.class,"name")
 				.is("王伟")
 				.and("cerId")

@@ -4,7 +4,7 @@
  * http://www.ewcms.com
  */
 
-package com.ewcms.common.query.model;
+package com.ewcms.common.query.mongo.model;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -28,6 +28,8 @@ public class Certificate implements Serializable{
     private String name;
     private Date brithdate;
     private Integer limit;
+    private String[] phones;
+    
 //    private Sex sex;
 //    private List<LimitLog> limitLogs;
 
@@ -87,7 +89,15 @@ public class Certificate implements Serializable{
 //        this.limitLogs = limitLogs;
 //    }
 
-    @Override
+    public String[] getPhones() {
+		return phones;
+	}
+
+	public void setPhones(String[] phones) {
+		this.phones = phones;
+	}
+
+	@Override
     public boolean equals(Object obj) {
         if (obj == null) {
             return false;

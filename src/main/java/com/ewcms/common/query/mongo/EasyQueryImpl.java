@@ -14,7 +14,7 @@ import org.springframework.util.StringUtils;
 
 import com.ewcms.common.convert.ConvertException;
 import com.ewcms.common.query.Pagination;
-import com.ewcms.common.query.Query;
+import com.ewcms.common.query.EasyQuery;
 import com.ewcms.common.query.Result;
 import com.ewcms.common.query.ResultImpl;
 import com.ewcms.common.query.ResultPage;
@@ -25,13 +25,13 @@ import com.ewcms.common.query.ResultPage;
  * @author wangwei
  * 
  */
-public class QueryImpl<T> implements Query<T> {
+public class EasyQueryImpl<T> implements EasyQuery<T> {
 
 	private final MongoOperations operations;
 	private final Criteria criteria;
 	private final Class<T> entityType;
 
-	protected QueryImpl(MongoOperations operations, Criteria criteria,
+	protected EasyQueryImpl(MongoOperations operations, Criteria criteria,
 			Class<T> entityType) {
 		this.operations = operations;
 		this.criteria = criteria;
@@ -84,8 +84,8 @@ public class QueryImpl<T> implements Query<T> {
 			this.entityType = entityType;
 		}
 
-		public Query<T> build() {
-			return new QueryImpl<T>(operations, new Criteria(), entityType);
+		public EasyQuery<T> build() {
+			return new EasyQueryImpl<T>(operations, new Criteria(), entityType);
 		}
 	}
 
@@ -97,6 +97,9 @@ public class QueryImpl<T> implements Query<T> {
 	 * @param <T>
 	 */
 	public static class Where<T> extends Builder<T> {
+		
+		private static final String DEFAULT_DELIMITER = ",";
+		
 		private MongoOperations operations;
 		private Criteria criteria;
 		private Class<T> entityType;
@@ -142,14 +145,14 @@ public class QueryImpl<T> implements Query<T> {
 		 * @author wangwei
 		 *
 		 */
-		interface CriteriaOperation {
+		interface CriteriaOperation<T> {
 			
 			/**
 			 * 条件操作
 			 * 
 			 * @param o
 			 */
-			void Operator(Object o);
+			void Operator(T o);
 		}
 
 		/**
@@ -159,7 +162,7 @@ public class QueryImpl<T> implements Query<T> {
 		 * @return
 		 */
 		public Where<T> is(Object o) {
-			setCriteriaOperation(o, new CriteriaOperation() {
+			setCriteriaOperation(o, new CriteriaOperation<Object>() {
 				@Override
 				public void Operator(Object o) {
 					criteria.is(o);
@@ -174,7 +177,7 @@ public class QueryImpl<T> implements Query<T> {
 		 * @param o
 		 * @param operation 规则操作{@link CriteraOperation}
 		 */
-		protected void setCriteriaOperation(Object o, CriteriaOperation operation) {
+		protected void setCriteriaOperation(Object o, CriteriaOperation<Object> operation) {
 			try {
 				Object c = convert.convert(criteria.getKey(), o);
 				if(c != null){
@@ -182,6 +185,7 @@ public class QueryImpl<T> implements Query<T> {
 				}
 			} catch (ConvertException e) {
 				// TODO 设置错误信息
+				throw new RuntimeException(e);
 			}
 		}
 
@@ -193,7 +197,7 @@ public class QueryImpl<T> implements Query<T> {
 		 * @return
 		 */
 		public Where<T> is(Object o, String patter) {
-			setCriteriaOperation(o, new CriteriaOperation() {
+			setCriteriaOperation(o, new CriteriaOperation<Object>() {
 				@Override
 				public void Operator(Object o) {
 					criteria.is(o);
@@ -202,7 +206,7 @@ public class QueryImpl<T> implements Query<T> {
 			return this;
 		}
 		
-		protected void setCriteriaOperation(Object o, CriteriaOperation operation,String patter) {
+		protected void setCriteriaOperation(Object o, CriteriaOperation<Object> operation,String patter) {
 			try {
 				Object c = convert.convertFormat(criteria.getKey(), patter, o);
 				if(c != null){
@@ -210,6 +214,7 @@ public class QueryImpl<T> implements Query<T> {
 				}
 			} catch (ConvertException e) {
 				// TODO 设置错误信息
+				throw new RuntimeException(e);
 			}
 		}
 		
@@ -220,7 +225,7 @@ public class QueryImpl<T> implements Query<T> {
 		 * @return
 		 */
 		public Where<T> ne(Object o) {
-			setCriteriaOperation(o,new CriteriaOperation(){
+			setCriteriaOperation(o,new CriteriaOperation<Object>(){
 				@Override
 				public void Operator(Object o) {
 					criteria.ne(o);	
@@ -237,7 +242,7 @@ public class QueryImpl<T> implements Query<T> {
 		 * @return
 		 */
 		public Where<T> ne(Object o,String patter){
-			setCriteriaOperation(o,new CriteriaOperation(){
+			setCriteriaOperation(o,new CriteriaOperation<Object>(){
 				@Override
 				public void Operator(Object o) {
 					criteria.ne(o);		
@@ -253,7 +258,7 @@ public class QueryImpl<T> implements Query<T> {
 		 * @return
 		 */
 		public Where<T> lt(Object o) {
-			setCriteriaOperation(o,new CriteriaOperation(){
+			setCriteriaOperation(o,new CriteriaOperation<Object>(){
 				@Override
 				public void Operator(Object o) {
 					criteria.lt(o);
@@ -270,7 +275,7 @@ public class QueryImpl<T> implements Query<T> {
 		 * @return
 		 */
 		public Where<T> lt(Object o,String patter){
-			setCriteriaOperation(o,new CriteriaOperation(){
+			setCriteriaOperation(o,new CriteriaOperation<Object>(){
 				@Override
 				public void Operator(Object o) {
 					criteria.lt(o);
@@ -286,7 +291,7 @@ public class QueryImpl<T> implements Query<T> {
 		 * @return
 		 */
 		public Where<T> lte(Object o) {
-			setCriteriaOperation(o,new CriteriaOperation(){
+			setCriteriaOperation(o,new CriteriaOperation<Object>(){
 				@Override
 				public void Operator(Object o) {
 					criteria.lte(o);
@@ -303,7 +308,7 @@ public class QueryImpl<T> implements Query<T> {
 		 * @return
 		 */
 		public Where<T> lte(Object o,String patter){
-			setCriteriaOperation(o,new CriteriaOperation(){
+			setCriteriaOperation(o,new CriteriaOperation<Object>(){
 				@Override
 				public void Operator(Object o) {
 					criteria.lte(o);
@@ -319,7 +324,7 @@ public class QueryImpl<T> implements Query<T> {
 		 * @return
 		 */
 		public Where<T> gt(Object o) {
-			setCriteriaOperation(o,new CriteriaOperation(){
+			setCriteriaOperation(o,new CriteriaOperation<Object>(){
 				@Override
 				public void Operator(Object o) {
 					criteria.gt(o);		
@@ -336,7 +341,7 @@ public class QueryImpl<T> implements Query<T> {
 		 * @return
 		 */
 		public Where<T> gt(Object o,String patter){
-			setCriteriaOperation(o,new CriteriaOperation(){
+			setCriteriaOperation(o,new CriteriaOperation<Object>(){
 				@Override
 				public void Operator(Object o) {
 					criteria.gt(o);
@@ -352,7 +357,7 @@ public class QueryImpl<T> implements Query<T> {
 		 * @return
 		 */
 		public Where<T> gte(Object o) {
-			setCriteriaOperation(o,new CriteriaOperation(){
+			setCriteriaOperation(o,new CriteriaOperation<Object>(){
 				@Override
 				public void Operator(Object o) {
 					criteria.gte(o);		
@@ -369,7 +374,7 @@ public class QueryImpl<T> implements Query<T> {
 		 * @return
 		 */
 		public Where<T> gte(Object o,String patter){
-			setCriteriaOperation(o,new CriteriaOperation(){
+			setCriteriaOperation(o,new CriteriaOperation<Object>(){
 				@Override
 				public void Operator(Object o) {
 					criteria.gte(o);
@@ -472,56 +477,193 @@ public class QueryImpl<T> implements Query<T> {
 			return this;
 		}
 		
+		/**
+		 * 创建$in操作规则
+		 * 
+		 * @param o 匹配值数组
+		 * @return
+		 */
 		public Where<T> in(Object... o) {
 			criteria.in(o);
 			return this;
 		}
 
+		/**
+		 * 创建$in操作规则
+		 * 
+		 * @param o 匹配值集合
+		 * @return
+		 */
 		public Where<T> in(Collection<?> c) {
 			criteria.in(c);
 			return this;
 		}
+		
+		/**
+		 * 创建$in操作规则，通过“,”字符，分割字符串{@code c}生成的集合进行in匹配。
+		 * 
+		 * @param c 匹配内容
+		 * @return
+		 */
+		public Where<T> inSplit(String c){
+			return inSplit(c,DEFAULT_DELIMITER);
+		}
+		
+		/**
+		 * 创建$in操作规则，通过指定的分割符，分割字符串{@code c}生成的集合进行in匹配。 
+		 * 
+		 * @param c 匹配内容
+		 * @param delimiter 分割符
+		 * @return
+		 */
+		public Where<T> inSplit(String c,String delimiter){
+			setCriteriaOperation(c,delimiter,new CriteriaOperation<Collection<?>>(){
+				@Override
+				public void Operator(Collection<?> o) {
+					criteria.in(o);
+				}
+			});
+			return this;
+		}
+		
+		protected void setCriteriaOperation(String c,String delimiter,CriteriaOperation<Collection<?>> operation) {
+			try {
+				if(StringUtils.hasText(c)){
+					Collection<?> collection= convert.convertCollection(criteria.getKey(), c, delimiter);
+					operation.Operator(collection);
+				}
+			} catch (ConvertException e) {
+				// TODO 设置错误信息
+				throw new RuntimeException(e);
+			}
+		}
 
+		/**
+		 * 创建$nin操作规则
+		 * 
+		 * @param o 匹配值数组
+		 * @return
+		 */
 		public Where<T> nin(Object... o) {
 			criteria.nin(o);
 			return this;
 		}
 
+		/**
+		 * 创建$nin操作规则
+		 * 
+		 * @param c 匹配值数组
+		 * @return
+		 */
 		public Where<T> nin(Collection<?> c) {
 			criteria.nin(c);
 			return this;
 		}
+		
+		/**
+		 * 创建$nin操作规则，通过“,”字符，分割字符串{@code c}生成的集合进行nin匹配。
+		 * 
+		 * @param c 匹配内容
+		 * @return
+		 */
+		public Where<T> ninSplit(String c){
+			return ninSplit(c,DEFAULT_DELIMITER);
+		}
+		
+		/**
+		 * 创建$nin操作规则，通过指定的分割符，分割字符串{@code c}生成的集合进行nin匹配。 
+		 * 
+		 * @param c 匹配内容
+		 * @param delimiter 分割符
+		 * @return
+		 */
+		public Where<T> ninSplit(String c,String delimiter){
+			setCriteriaOperation(c,delimiter,new CriteriaOperation<Collection<?>>(){
+				@Override
+				public void Operator(Collection<?> o) {
+					criteria.nin(o);
+				}
+			});
+			return this;
+		}
 
+		/**
+		 * 创建$mod操作规则
+		 * 
+		 * @param value
+		 * @param remainder
+		 * @return
+		 */
 		public Where<T> mod(Number value, Number remainder) {
 			criteria.mod(value, remainder);
 			return this;
 		}
 
+		/**
+		 * 创建$all操作规则
+		 * 
+		 * @param o
+		 * @return
+		 */
 		public Where<T> all(Object... o) {
 			criteria.all(o);
 			return this;
 		}
-
+		
+		/**
+		 * 创建$all操作规则
+		 * 
+		 * @param c
+		 * @return
+		 */
 		public Where<T> all(Collection<?> c) {
 			criteria.all(c);
 			return this;
 		}
+		
+		/**
+		 * 创建$all操作规则，通过“,”字符，分割字符串{@code c}生成的集合进行all匹配。
+		 * 
+		 * @param c 匹配内容
+		 * @return
+		 */
+		public Where<T> allSplit(String c){
+			return allSplit(c,DEFAULT_DELIMITER);
+		}
+		
+		/**
+		 * 创建$all操作规则，通过指定的分割符，分割字符串{@code c}生成的集合进行all匹配。 
+		 * 
+		 * @param c 匹配内容
+		 * @param delimiter 分割符
+		 * @return
+		 */
+		public Where<T> allSplit(String c,String delimiter){
+			setCriteriaOperation(c,delimiter,new CriteriaOperation<Collection<?>>(){
+				@Override
+				public void Operator(Collection<?> o) {
+					criteria.all(o);
+				}
+			});
+			return this;
+		}
 
+		/**
+		 * 创建$size操作规则
+		 * 
+		 * @param s
+		 * @return
+		 */
 		public Where<T> size(int s) {
 			criteria.size(s);
 			return this;
 		}
 
-		public Where<T> exists(boolean b) {
-			criteria.exists(b);
-			return this;
-		}
-
-		public Where<T> type(int t) {
-			criteria.type(t);
-			return this;
-		}
-
+		/**
+		 * 创建$not操作规则
+		 * 
+		 * @return
+		 */
 		public Where<T> not() {
 			criteria.not();
 			return this;
@@ -547,8 +689,8 @@ public class QueryImpl<T> implements Query<T> {
 			return this;
 		}
 
-		public Query<T> build() {
-			return new QueryImpl<T>(operations, criteria, entityType);
+		public EasyQuery<T> build() {
+			return new EasyQueryImpl<T>(operations, criteria, entityType);
 		}
 	}
 }

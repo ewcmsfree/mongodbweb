@@ -17,17 +17,18 @@ import java.util.List;
 import java.util.SimpleTimeZone;
 
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.util.StringUtils;
 
-import com.ewcms.common.query.model.Certificate;
-import com.ewcms.common.query.model.LimitLog;
-import com.ewcms.common.query.model.Sex;
+import com.ewcms.common.query.mongo.model.Certificate;
+import com.ewcms.common.query.mongo.model.LimitLog;
+import com.ewcms.common.query.mongo.model.Sex;
 
-public class QueryInit {
+public class EasyQueryInit {
     
     private final SimpleDateFormat format;
     private final MongoOperations operations;
     
-    public QueryInit(MongoOperations operations){
+    public EasyQueryInit(MongoOperations operations){
     	this.operations = operations;
     	format = new SimpleDateFormat("yyyy-MM-dd");
     	format.setCalendar(new GregorianCalendar(new SimpleTimeZone(0,"GMT")));
@@ -88,13 +89,16 @@ public class QueryInit {
                 Certificate c = new Certificate();
                 c.setCerId(array[0]);
                 c.setName(array[1]);
+//              c.setSex(jpaTemplate.getReference(Sex.class, Integer.valueOf(array[2])));
                 try {
                     c.setBrithdate(format.parse(array[3]));
                 } catch (ParseException e) {
                     new RuntimeException(e);
                 }
                 c.setLimit(Float.valueOf(array[4]).intValue());
-//                c.setSex(jpaTemplate.getReference(Sex.class, Integer.valueOf(array[2])));
+                if(array.length > 5 && StringUtils.hasText(array[5])){
+                	c.setPhones(StringUtils.tokenizeToStringArray(array[5], "|"));
+                }
                 
                 return c;
             }

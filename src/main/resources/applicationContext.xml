@@ -39,7 +39,7 @@
         </property>
     </bean>
     
-	<mongo:mongo host="localhost" port="27017">
+	<mongo:mongo host="localhost" port="27017" write-concern="SAFE">
 		<mongo:options connections-per-host="8"
 			threads-allowed-to-block-for-connection-multiplier="4"
 			connect-timeout="1000" max-wait-time="1500" auto-connect-retry="true"

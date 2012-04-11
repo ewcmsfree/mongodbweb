@@ -11,7 +11,7 @@ package com.ewcms.common.query;
  *
  * @author wangwei
  */
-public interface Query<T>{
+public interface EasyQuery<T>{
     
 	/**
 	 * 查询数据

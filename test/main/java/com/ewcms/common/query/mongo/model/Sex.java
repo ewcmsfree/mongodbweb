@@ -4,7 +4,7 @@
  * http://www.ewcms.com
  */
 
-package com.ewcms.common.query.model;
+package com.ewcms.common.query.mongo.model;
 
 import java.io.Serializable;
 
