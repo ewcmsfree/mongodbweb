@@ -8,6 +8,7 @@ package com.ewcms.common.query.mongo;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bson.types.BasicBSONList;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import com.mongodb.BasicDBObject;
@@ -40,6 +41,50 @@ public class CriteriaWapper extends Criteria {
 
 	public static CriteriaWapper where(String key) {
 		return new CriteriaWapper(key);
+	}
+	
+	/**
+	 * 设置本地{@code criteriaChain}保持与{@code super.criteriaChina}一致。
+	 * 
+	 * @param criteria
+	 */
+	public Criteria orOperator(Criteria... criteria) {
+		super.orOperator(criteria);
+		BasicBSONList bsonList = createCriteriaList(criteria);
+		criteriaChain.add(new Criteria("$or").is(bsonList));
+		return this;
+	}
+
+	/**
+	 * 设置本地{@code criteriaChain}保持与{@code super.criteriaChina}一致。
+	 * 
+	 * @param criteria
+	 */
+	public Criteria norOperator(Criteria... criteria) {
+		super.norOperator(criteria);
+		BasicBSONList bsonList = createCriteriaList(criteria);
+		criteriaChain.add(new Criteria("$nor").is(bsonList));
+		return this;
+	}
+
+	/**
+	 * 设置本地{@code criteriaChain}保持与{@code super.criteriaChina}一致。
+	 * 
+	 * @param criteria
+	 */
+	public Criteria andOperator(Criteria... criteria) {
+		super.andOperator(criteria);
+		BasicBSONList bsonList = createCriteriaList(criteria);
+		criteriaChain.add(new Criteria("$and").is(bsonList));
+		return this;
+	}
+	
+	private BasicBSONList createCriteriaList(Criteria[] criteria) {
+		BasicBSONList bsonList = new BasicBSONList();
+		for (Criteria c : criteria) {
+			bsonList.add(c.getCriteriaObject());
+		}
+		return bsonList;
 	}
 
 	public CriteriaWapper and(String key) {

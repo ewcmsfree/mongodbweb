@@ -26,4 +26,18 @@ public interface Pagination {
     * @return
     */
    int getNumber();
+   
+   /**
+    * 返回偏移量根据页数和页面大小计算
+    * 
+    * @return
+    */
+   int getOffset();
+   
+   /**
+    * 返回排序
+    * 
+    * @return
+    */
+   Sort getSort();
 }

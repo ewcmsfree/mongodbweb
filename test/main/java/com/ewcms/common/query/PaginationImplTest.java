@@ -47,4 +47,10 @@ public class PaginationImplTest {
 		PaginationImpl pagination = new PaginationImpl(1,0);
 		Assert.assertTrue(pagination.getNumber() == 0);
 	}
+	
+	@Test
+	public void testGetOffset(){
+		PaginationImpl pagination = new PaginationImpl(2,10);
+		Assert.assertEquals(20, pagination.getOffset());
+	}
 }

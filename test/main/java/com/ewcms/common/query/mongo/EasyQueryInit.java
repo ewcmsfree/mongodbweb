@@ -21,8 +21,13 @@ import org.springframework.util.StringUtils;
 
 import com.ewcms.common.query.mongo.model.Certificate;
 import com.ewcms.common.query.mongo.model.LimitLog;
-import com.ewcms.common.query.mongo.model.Sex;
 
+/**
+ * 初始模拟查询数到数据库中
+ * 
+ * @author wangwei
+ *
+ */
 public class EasyQueryInit {
     
     private final SimpleDateFormat format;
@@ -32,6 +37,7 @@ public class EasyQueryInit {
     	this.operations = operations;
     	format = new SimpleDateFormat("yyyy-MM-dd");
     	format.setCalendar(new GregorianCalendar(new SimpleTimeZone(0,"GMT")));
+    	
     }
     
     public void init()throws IOException{
@@ -60,36 +66,23 @@ public class EasyQueryInit {
     }
     
     private void insert()throws IOException{
-        //insertSex();
         insertCertificate();
-        //insertLimitLog();
-    }
-        
-    private void insertSex()throws IOException{
-        Insert<Sex> insert = new Insert<Sex>("sex.csv",operations);
-        insert.insert(new InsertCallback<Sex>(){    
-            @Override
-            public Sex mapping(String line) {
-                String[] array = line.split(",");
-                Sex sex = new Sex();
-                sex.setId(Integer.valueOf(array[0]));
-                sex.setName(array[1]);
-                
-                return sex;
-            }
-        });
     }
     
     private void insertCertificate()throws IOException{
-        Insert<Certificate> insert = new Insert<Certificate>("certificate.csv",operations);
-        insert.insert(new InsertCallback<Certificate>(){
+        DataOperator<Certificate> operator = new DataOperator<Certificate>("certificate.csv");
+        operator.insert(new MapperCallback<Certificate>(){
             @Override
             public Certificate mapping(String line) {
                 String[] array = line.split(",");
                 Certificate c = new Certificate();
                 c.setCerId(array[0]);
                 c.setName(array[1]);
-//              c.setSex(jpaTemplate.getReference(Sex.class, Integer.valueOf(array[2])));
+                try {
+					c.setLimitLogs(findLimitLog(array[0]));
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
                 try {
                     c.setBrithdate(format.parse(array[3]));
                 } catch (ParseException e) {
@@ -102,18 +95,19 @@ public class EasyQueryInit {
                 
                 return c;
             }
-        });
+        },operations);
     }
     
-    private void insertLimitLog()throws IOException{
-        Insert<LimitLog> insert = new Insert<LimitLog>("limitlog.csv",operations);
-        insert.insert(new InsertCallback<LimitLog>(){
+    private List<LimitLog> findLimitLog(final String id)throws IOException{
+        DataOperator<LimitLog> operator = new DataOperator<LimitLog>("limitlog.csv");
+        List<LimitLog> logs = operator.loadData(new MapperCallback<LimitLog>(){
             @Override
             public LimitLog mapping(String line) {
                 String[] array = line.split(",");
+                if(!array[1].equals(id)){
+                	return null;
+                }
                 LimitLog log = new LimitLog();
-                log.setId(Integer.valueOf(array[0]));
-                //log.setCertificate(jpaTemplate.getReference(Certificate.class, array[1]));
                 log.setMoney(Float.valueOf(array[2]).intValue());
                 try {
                     log.setDate(format.parse(array[3]));
@@ -123,35 +117,41 @@ public class EasyQueryInit {
                 return log;
             }
         });
+        return logs;
     }
     
-    class Insert<T>{
+    class DataOperator<T>{
    
         private String name;
-        private MongoOperations operations;
         
-        Insert(String name,MongoOperations operations){
+        DataOperator(String name){
             this.name = name;
-            this.operations = operations;
         }
         
-        void insert(InsertCallback<T> callback)throws IOException{
-            BufferedReader reader =new BufferedReader(
-                    new InputStreamReader(this.getClass().getResourceAsStream(name)));
-            List<T> list = new ArrayList<T>();
-            for(String line = reader.readLine();line != null ; line = reader.readLine()){
-                if(line == null || line.trim().equals("")){
-                    continue;
-                }
-                T t = callback.mapping(line);
-                list.add(t);
-            }
+        List<T> loadData(MapperCallback<T> callback)throws IOException{
+        	  BufferedReader reader =new BufferedReader(
+                      new InputStreamReader(this.getClass().getResourceAsStream(name)));
+              List<T> list = new ArrayList<T>();
+              for(String line = reader.readLine();line != null ; line = reader.readLine()){
+                  if(line == null || line.trim().equals("")){
+                      continue;
+                  }
+                  T t = callback.mapping(line);
+                  if(t != null){
+                	  list.add(t);  
+                  }
+              }
+              return list;
+        }
+        
+        void insert(MapperCallback<T> callback,MongoOperations operations)throws IOException{
+        	List<T> list = loadData(callback);
             operations.insertAll(list);
         }  
         
     }
     
-    interface InsertCallback<T>{
+    interface MapperCallback<T>{
         T mapping(String line);
     }
 }

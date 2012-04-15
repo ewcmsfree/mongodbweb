@@ -6,6 +6,7 @@
 
 package com.ewcms.common.query;
 
+
 /**
  * 数据查询
  *
@@ -14,17 +15,25 @@ package com.ewcms.common.query;
 public interface EasyQuery<T>{
     
 	/**
-	 * 查询数据
+	 * 查询
 	 * 
 	 * @return
 	 */
     Result<T> find();
     
     /**
-     * 查询分页数据
+     * 排序查询
+     * 
+     * @param sort
+     * @return
+     */
+    Result<T> findSort(Sort sort);
+    
+    /**
+     * 分页查询
      * 
      * @param page
      * @return
      */
-    ResultPage<T> find(Pagination page);
+    ResultPage<T> findPage(Pagination page);
 }

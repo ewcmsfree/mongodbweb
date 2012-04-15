@@ -8,11 +8,13 @@ package com.ewcms.common.query.mongo.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.IndexDirection;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+
 /**
  * 证件实体
  *
@@ -29,9 +31,7 @@ public class Certificate implements Serializable{
     private Date brithdate;
     private Integer limit;
     private String[] phones;
-    
-//    private Sex sex;
-//    private List<LimitLog> limitLogs;
+    private List<LimitLog> limitLogs;
 
     public Date getBrithdate() {
         return brithdate;
@@ -72,22 +72,6 @@ public class Certificate implements Serializable{
     public void setName(String name) {
         this.name = name;
     }
-    
-//    public Sex getSex() {
-//        return sex;
-//    }
-//
-//    public void setSex(Sex sex) {
-//        this.sex = sex;
-//    }
-//
-//    public List<LimitLog> getLimitLogs() {
-//        return limitLogs;
-//    }
-//
-//    public void setLimitLogs(List<LimitLog> limitLogs) {
-//        this.limitLogs = limitLogs;
-//    }
 
     public String[] getPhones() {
 		return phones;
@@ -95,6 +79,14 @@ public class Certificate implements Serializable{
 
 	public void setPhones(String[] phones) {
 		this.phones = phones;
+	}
+
+	public List<LimitLog> getLimitLogs() {
+		return limitLogs;
+	}
+
+	public void setLimitLogs(List<LimitLog> limitLogs) {
+		this.limitLogs = limitLogs;
 	}
 
 	@Override

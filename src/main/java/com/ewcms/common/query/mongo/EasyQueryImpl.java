@@ -10,14 +10,18 @@ import java.util.List;
 
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Order;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.util.StringUtils;
 
 import com.ewcms.common.convert.ConvertException;
-import com.ewcms.common.query.Pagination;
 import com.ewcms.common.query.EasyQuery;
+import com.ewcms.common.query.Pagination;
 import com.ewcms.common.query.Result;
 import com.ewcms.common.query.ResultImpl;
 import com.ewcms.common.query.ResultPage;
+import com.ewcms.common.query.ResultPageImpl;
+import com.ewcms.common.query.Sort;
 
 /**
  * Mongo数据库查询实现
@@ -29,65 +33,53 @@ public class EasyQueryImpl<T> implements EasyQuery<T> {
 
 	private final MongoOperations operations;
 	private final Criteria criteria;
-	private final Class<T> entityType;
+	private final Class<T> entityClass;
 
-	protected EasyQueryImpl(MongoOperations operations, Criteria criteria,
-			Class<T> entityType) {
+	protected EasyQueryImpl(MongoOperations operations, Criteria criteria,Class<T> entityClass) {
 		this.operations = operations;
 		this.criteria = criteria;
-		this.entityType = entityType;
+		this.entityClass = entityClass;
 	}
 
 	@Override
 	public Result<T> find() {
-		List<T> list = operations.find(
-				new org.springframework.data.mongodb.core.query.Query(criteria)
-				, entityType);
+		List<T> list = operations.find(Query.query(criteria), entityClass);
 		return new ResultImpl<T>(list);
 	}
 
 	@Override
-	public ResultPage<T> find(Pagination page) {
-		// TODO Auto-generated method stub
-		return null;
+	public Result<T> findSort(Sort sort) {
+		Query query = Query.query(criteria);
+		setSort(query,sort);
+		List<T> list = operations.find(query, entityClass);
+		return new ResultImpl<T>(list);
 	}
-
-	protected static class Builder<T> {
-
-	}
-
-	/**
-	 * 构建无条件查询
-	 * 
-	 * @author wangwei
-	 *
-	 * @param <T>
-	 */
-	public static class NoWhere<T> extends Builder<T> {
-		private final MongoOperations operations;
-		private final Class<T> entityType;
-
-		/**
-		 * 创建{@linkp NoWhere}实现
-		 * 
-		 * @param operations 不能为{@literal null}
-		 * @param entityType 不能为{@literal null}
-		 */
-		public NoWhere(MongoOperations operations, Class<T> entityType) {
-			if(operations == null){
-				throw new IllegalArgumentException("operations must not null!");
+	
+	private void setSort(Query query,Sort sort){
+		for(Sort.Order order : sort){
+			if(order.isAscending()){
+				query.sort().on(order.getProperty(),Order.ASCENDING);	
+			}else{
+				query.sort().on(order.getProperty(),Order.DESCENDING);	
 			}
-			if(entityType == null){
-				throw new IllegalArgumentException("entityType must not null!");
-			}
-			this.operations = operations;
-			this.entityType = entityType;
-		}
-
-		public EasyQuery<T> build() {
-			return new EasyQueryImpl<T>(operations, new Criteria(), entityType);
 		}
 	}
+
+	@Override
+	public ResultPage<T> findPage(Pagination page) {
+		Query query = Query.query(criteria);
+		long count = operations.count(query, entityClass);
+		
+		setSort(query,page.getSort());
+		
+		query.skip(page.getOffset());
+		query.limit(page.getSize());
+		
+		List<T> list = operations.find(query, entityClass);
+		
+		return new ResultPageImpl<T>(page,count,list);
+	}
+
 
 	/**
 	 * 构建有条件查询
@@ -96,36 +88,44 @@ public class EasyQueryImpl<T> implements EasyQuery<T> {
 	 *
 	 * @param <T>
 	 */
-	public static class Where<T> extends Builder<T> {
+	public static class Where<T> {
 		
 		private static final String DEFAULT_DELIMITER = ",";
 		
-		private MongoOperations operations;
 		private Criteria criteria;
-		private Class<T> entityType;
+		private Class<T> entityClass;
 		private PropertyConvert convert;
 
 		/**
 		 * 创建{@link Where}实现
 		 * 
-		 * @param operations 不能为{@literal null}
-		 * @param entityType 不能为{@literal null}
+		 * @param entityClass 不能为{@literal null}
+		 */
+		public Where(Class<T> entityClass){
+			if(entityClass == null){
+				throw new IllegalArgumentException("entityType must not null!");
+			}
+			criteria = new Criteria();
+			this.entityClass = entityClass;
+			this.convert = new PropertyConvert(entityClass);
+		}
+		
+		/**
+		 * 创建{@link Where}实现
+		 * 
+		 * @param entityClass 不能为{@literal null}
 		 * @param key 不能为{@literal null}
 		 */
-		public Where(MongoOperations operations, Class<T> entityType, String key) {
-			if(operations == null){
-				throw new IllegalArgumentException("operations must not null!");
-			}
-			if(entityType == null){
+		public Where(Class<T> entityClass,String key) {
+			if(entityClass == null){
 				throw new IllegalArgumentException("entityType must not null!");
 			}
 			if(key == null){
 				throw new IllegalArgumentException("key must not null!");
 			}
-			this.operations = operations;
 			this.criteria = CriteriaWapper.where(key);
-			this.entityType = entityType;
-			this.convert = new PropertyConvert(entityType);
+			this.entityClass = entityClass;
+			this.convert = new PropertyConvert(entityClass);
 		}
 
 		/**
@@ -669,28 +669,69 @@ public class EasyQueryImpl<T> implements EasyQuery<T> {
 			return this;
 		}
 
-		public Where<T> elemMatch(Criteria c) {
-			criteria.elemMatch(c);
+		/**
+		 * 创建$elemMatch操作规则
+		 * 
+		 * @param w
+		 * @return
+		 */
+		public Where<T> elemMatch(Where<?> w) {
+			criteria.elemMatch(w.criteria);
 			return this;
 		}
 
-		public Where<T> orOperator(Criteria... c) {
-			criteria.orOperator(c);
+		/**
+		 * 为所有提供的规则，创建$or操作规则
+		 * 
+		 * @param ws
+		 * @return
+		 */
+		public Where<T> orOperator(Where<?>... ws) {
+			criteria.orOperator(getCriterias(ws));
 			return this;
 		}
 
-		public Where<T> norOperator(Criteria... c) {
-			criteria.norOperator(c);
+		private Criteria[] getCriterias(Where<?>... ws){
+			Criteria[] c = new Criteria[ws.length];
+			for(int i = 0 ; i < ws.length ; i++){
+				c[i] = ws[i].criteria;
+			}
+			return c;
+		}
+		
+		/**
+		 * 为所有提供的规则，创建$nor操作规则
+		 * 
+		 * @param ws
+		 * @return
+		 */
+		public Where<T> norOperator(Where<?>... ws) {
+			criteria.norOperator(getCriterias(ws));
 			return this;
 		}
 
-		public Where<T> andOperator(Criteria... c) {
-			criteria.andOperator(c);
+		/**
+		 * 为所有提供的规则，创建$and操作规则
+		 * 
+		 * @param ws
+		 * @return
+		 */
+		public Where<T> andOperator(Where<?>... ws) {
+			criteria.andOperator(getCriterias(ws));
 			return this;
 		}
-
-		public EasyQuery<T> build() {
-			return new EasyQueryImpl<T>(operations, criteria, entityType);
+		
+		/**
+		 * 构建{@linkp EasyQuery}实现
+		 * 
+		 * @param operations 不能为{@literal null}
+		 * @return
+		 */
+		public EasyQuery<T> build(MongoOperations operations) {
+			if(operations == null){
+				throw new IllegalArgumentException("operations must not null!");
+			}
+			return new EasyQueryImpl<T>(operations, criteria, entityClass);
 		}
 	}
 }
