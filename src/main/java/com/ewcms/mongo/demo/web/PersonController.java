@@ -24,13 +24,23 @@ public class PersonController {
 	private PersonRepository personRepositoryImpl;
 	
 	@RequestMapping(value = "/edit.do",method = RequestMethod.GET)
-	public void edit(Model model) throws Exception{
-		
+	public String edit(@RequestParam(value = "personId", required = false)String personId, Model model) throws Exception{
+		Person person = new Person();
+		if (personId != null && personId.length() > 0){
+			person = personRepositoryImpl.findOne(personId);
+		}
+		model.addAttribute("person", person);
+		return "person/edit";
 	}
 	
 	@RequestMapping(value = "/save.do",method = RequestMethod.POST)
-	public void save(@ModelAttribute("person")Person category, Model model) throws Exception{
-		
+	public String save(@ModelAttribute("person")Person person, Model model) throws Exception{
+		if (person.getId() == null || person.getId().length() == 0){
+			personRepositoryImpl.save(person);
+		}else{
+			personRepositoryImpl.save(person);
+		}
+		return "person/index";
 	}
 	
 	@RequestMapping(value = "/delete.do", method = RequestMethod.POST)
@@ -47,10 +57,10 @@ public class PersonController {
 			@RequestParam(value = "sort", required = false) String sort,
 			@RequestParam(value = "order", required = false) String order,
 			@RequestParam(value = "selections", required = false) String selections,
-			@RequestParam(value = "cacheKey", required = false) String cacheKey,
 			@ModelAttribute(value = "person")Person person) {
 		page = page - 1;
 		
+		//TODO 未完成
 		
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		
