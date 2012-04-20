@@ -18,9 +18,6 @@
 
 	<mvc:view-controller path="/" view-name="forward:/person/index.do" />
 
-	<!-- 操作日志Aspectj -->
-	<aop:aspectj-autoproxy />
-
 	<bean
 		class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
 		<property name="defaultHandler">

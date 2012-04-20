@@ -321,15 +321,7 @@ function EwcmsOperate(){
 	/*表单提交操作*/    
 	this.saveOperator = function(iframeID){
 	    if(typeof(iframeID) == 'undefined'|| iframeID == '')iframeID = 'editifr';
-	    alert("-1-");
 	    window.frames[iframeID].document.forms[0].submit();
-	    alert("-2-");
-	    var selections = window.frames[iframeID].document.getElementById('selections');
-	    alert("-3-");
-	    if(selections == null){
-	    	$.messager.alert('提示','记录提交完成','info');
-	    	queryReload(true);
-	    }
 	}
 	            
 	/*添加操作*/ 

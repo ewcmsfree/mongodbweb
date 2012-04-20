@@ -5,12 +5,12 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 	<head>
-		<title>文章分类属性</title>	
+		<title>Person</title>	
 		<%@ include file="../taglibs.jsp" %>
 		<script type="text/javascript">
 		$(function(){
 			ewcmsBOBJ = new EwcmsBase();
-			ewcmsBOBJ.setQueryURL('<c:url value="/document/category/query.do"/>');
+			ewcmsBOBJ.setQueryURL('<c:url value="/person/query.do"/>');
 			
 			ewcmsBOBJ.delToolItem('缺省查询');
 
@@ -19,14 +19,17 @@
 			ewcmsBOBJ.openDataGrid('#tt',{
                 columns:[[
 						{field:'id',title:'序号',width:50,sortable:true},
-		                {field:'categoryName',title:'名称',width:200}
+		                {field:'name',title:'名称',width:200},
+		                {field:'age',title:'年龄',width:100},
+		                {field:'address',title:'地址',width:300},
+		                {field:'email',title:'邮箱',width:200}
                   ]]
 			});
 
 			ewcmsOOBJ = new EwcmsOperate();
 			ewcmsOOBJ.setQueryURL(ewcmsBOBJ.getQueryURL());
-			ewcmsOOBJ.setInputURL('<c:url value="/document/category/edit.do"/>');
-			ewcmsOOBJ.setDeleteURL('<c:url value="/document/category/delete.do"/>');
+			ewcmsOOBJ.setInputURL('<c:url value="/person/edit.do"/>');
+			ewcmsOOBJ.setDeleteURL('<c:url value="/person/delete.do"/>');
 			
 		});
 		function queryOperate(){

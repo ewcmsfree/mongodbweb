@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -13,6 +14,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.ewcms.common.query.EasyQuery;
+import com.ewcms.common.query.Pagination;
+import com.ewcms.common.query.PaginationImpl;
+import com.ewcms.common.query.ResultPage;
+import com.ewcms.common.query.Sort.Direction;
+import com.ewcms.common.query.mongo.EasyQueryImpl;
 import com.ewcms.mongo.demo.model.Person;
 import com.ewcms.mongo.demo.repositories.PersonRepository;
 
@@ -22,6 +29,8 @@ public class PersonController {
 
 	@Autowired
 	private PersonRepository personRepositoryImpl;
+	@Autowired
+	private MongoOperations mongoOperations;
 	
 	@RequestMapping(value = "/edit.do",method = RequestMethod.GET)
 	public String edit(@RequestParam(value = "personId", required = false)String personId, Model model) throws Exception{
@@ -59,11 +68,15 @@ public class PersonController {
 			@RequestParam(value = "selections", required = false) String selections,
 			@ModelAttribute(value = "person")Person person) {
 		page = page - 1;
+		Pagination pageination = new PaginationImpl(10,page,Direction.ASC,"id");
 		
-		//TODO 未完成
+		EasyQuery<Person> query = new EasyQueryImpl.Where<Person>(Person.class).build(mongoOperations);
+		
+		ResultPage<Person> result = query.findPage(pageination);
 		
 		Map<String, Object> resultMap = new HashMap<String, Object>();
-		
+		resultMap.put("total", result.getTotalElements());
+		resultMap.put("rows", result.getContent());
 		return resultMap;
 	}
 }
