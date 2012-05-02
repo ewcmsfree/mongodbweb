@@ -28,7 +28,7 @@
 		   modal: opts.modal,
 		   maximizable:opts.maximizable,
 		   minimizable:opts.minimizable,
-		   onClose:opts.onClose(id)
+		   onClose:opts.onClose(opts.windowId)
 		});
 		if(opts.url){
 			opts.iframeId ? 
@@ -54,8 +54,8 @@
 		modal:true,
 		maximizable:false,
 		minimizable:true,
-		onClose:function(id){
-			$(id).find("iframe").attr('src','about:blank');
+		onClose:function(windowId){
+			$(windowId).find("iframe").attr('src','about:blank');
 	    }
 	};
 	
@@ -71,7 +71,7 @@
 	
 	$.fn.ewcms.operator.add = function(options){
 		var opts = $.extend({}, $.fn.ewcms.defaults.operator, options);
-		if(!hasElementFor(opts.iframeId) || !hasElementFor(opts.windowId)){
+		if(!hasElementFor([opts.iframeId,opts.windowId])){
 			return;
 		}
 		openWindow(opts);
@@ -91,7 +91,7 @@
 	    
 	    var url = (( opts.url.indexOf("?") == -1) ? opts.url + '?' : opts.url + '&');
 	    $each(rows,function(index,row){
-	    	url += 'selections=' + getId(row) +'&';
+	    	url += 'selections=' + opts.getId(row) +'&';
 	    });
 	    openWindow(opts);
 	};
@@ -109,7 +109,7 @@
 	    
 	    var data = '';
 	    $.each(rows,function(index,row){
-	    	data =data + 'selections=' + getId(row) +'&';
+	    	data =data + 'selections=' + opts.getId(row) +'&';
 	    });
 	    $.messager.confirm("提示","确定要删除所选记录吗?",function(r){
 	        if (r){
@@ -130,6 +130,17 @@
 		getId : function(row){
 			return id;
 		}
+	};
+	
+	$.fn.ewcms.query = function(opts){
+		
+	};
+	
+	$.fn.ewcms.defaults.query = {
+			datagridId : '#tt',
+			formId : '#queryform',
+			windowId : '#query-window',
+			url: "query.action"
 	};
 	
 	function hasElementFor(id){
