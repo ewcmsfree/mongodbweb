@@ -32,7 +32,7 @@ public class PersonController {
 	@Autowired
 	private MongoOperations mongoOperations;
 	
-	@RequestMapping(value = "/edit.do",method = RequestMethod.GET)
+	@RequestMapping(value = "/edit.action",method = RequestMethod.GET)
 	public String edit(@RequestParam(value = "personId", required = false)String personId, Model model) throws Exception{
 		Person person = new Person();
 		if (personId != null && personId.length() > 0){
@@ -42,7 +42,7 @@ public class PersonController {
 		return "person/edit";
 	}
 	
-	@RequestMapping(value = "/save.do",method = RequestMethod.POST)
+	@RequestMapping(value = "/save.action",method = RequestMethod.POST)
 	public String save(@ModelAttribute("person")Person person, Model model) throws Exception{
 		if (person.getId() == null || person.getId().length() == 0){
 			personRepositoryImpl.save(person);
@@ -52,7 +52,7 @@ public class PersonController {
 		return "person/index";
 	}
 	
-	@RequestMapping(value = "/delete.do", method = RequestMethod.POST)
+	@RequestMapping(value = "/delete", method = RequestMethod.POST)
 	public String delete(@RequestParam("selections") List<String> selections) throws Exception{
 		for (String personId : selections){
 			personRepositoryImpl.delete(personId);
@@ -60,7 +60,7 @@ public class PersonController {
     	return "person/index";
 	}
 	
-	@RequestMapping(value = "/query.do")
+	@RequestMapping(value = "/query")
 	@ResponseBody
 	public Map<String, Object> query(@RequestParam(value = "page") int page, @RequestParam(value = "rows") int rows,
 			@RequestParam(value = "sort", required = false) String sort,

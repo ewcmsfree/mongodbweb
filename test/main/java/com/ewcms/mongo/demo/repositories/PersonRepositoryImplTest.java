@@ -67,7 +67,7 @@ public class PersonRepositoryImplTest {
 
 	@Test
 	public void testSaveCollection() {
-		List<Person> persons = new ArrayList<>();
+		List<Person> persons = new ArrayList<Person>();
 
 		for (int i = 0; i < 100; i++) {
 			Person person = createEntity("wangwei" + i,i+1);
@@ -80,7 +80,7 @@ public class PersonRepositoryImplTest {
 
 	@Test
 	public void testFindAll() {
-		List<Person> persons = new ArrayList<>();
+		List<Person> persons = new ArrayList<Person>();
 		for (int i = 0; i < 100; i++) {
 			Person person = createEntity("wangwei" + i,i+1);
 			persons.add(person);
@@ -93,7 +93,7 @@ public class PersonRepositoryImplTest {
 
 	@Test
 	public void testFindAllPage() {
-		List<Person> persons = new ArrayList<>();
+		List<Person> persons = new ArrayList<Person>();
 		for (int i = 0; i < 103; i++) {
 			Person person = createEntity("wangwei" + i,i+1);
 			persons.add(person);
@@ -115,7 +115,7 @@ public class PersonRepositoryImplTest {
 	
 	@Test
 	public void testFindAllSort(){
-		List<Person> persons = new ArrayList<>();
+		List<Person> persons = new ArrayList<Person>();
 		for (int i = 0; i < 103; i++) {
 			Person person = createEntity("wangwei" + i,i+1);
 			persons.add(person);
@@ -131,7 +131,7 @@ public class PersonRepositoryImplTest {
 	
 	@Test
 	public void testFindWorkByAge(){
-		List<Person> persons = new ArrayList<>();
+		List<Person> persons = new ArrayList<Person>();
 		for (int i = 0; i < 103; i++) {
 			Person person = createEntity("wangwei" + i,i+1);
 			persons.add(person);

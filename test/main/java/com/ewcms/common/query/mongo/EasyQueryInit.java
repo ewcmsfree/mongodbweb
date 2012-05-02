@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.SimpleTimeZone;
 
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.util.StringUtils;
 
 import com.ewcms.common.query.mongo.model.Certificate;
@@ -53,7 +55,8 @@ public class EasyQueryInit {
      * @return
      */
     private boolean isInit(){
-    	return operations.collectionExists(Certificate.class);
+    	return operations.collectionExists(Certificate.class) &&
+    	       operations.count(Query.query(new Criteria()), Certificate.class) > 0;
     }
     
     public void resetInit()throws IOException{
