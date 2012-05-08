@@ -9,140 +9,6 @@
  */
 
 (function($){
-	$.fn.ewcms = function(){
-		
-	};
-	
-	$.fn.ewcms.openWindow = function(options){
-		var opts = $.extend({}, $.fn.ewcms.defaults.window, options);  
-		if(!hasElementFor(opts.windowId)){
-			return;
-		}
-		$(opts.windowId).removeAttr("style");
-		$(opts.windowId).window({
-		   title: opts.title,
-		   width: opts.width,
-		   height: opts.height,
-		   left:(opts.left ? opts.left : ($(window).width() - opts.width)/2),
-		   top:(opts.top ? opts.top : ($(window).height() - opts.height)/2),
-		   modal: opts.modal,
-		   maximizable:opts.maximizable,
-		   minimizable:opts.minimizable,
-		   onClose:opts.onClose(opts.windowId)
-		});
-		if(opts.url){
-			opts.iframeId ? 
-					$(opts.iframeId).attr('src',opts.url) 
-					:$(opts.windowId).find('iframe').attr('src',opts.url);
-		}
-		$(opts.windowId).window('open');
-	};
-	
-	$.fn.ewcms.closeWindow = function(windowId){
-		if(!hasElementFor(windowId)){
-			return;
-		}
-		$(windowId).window('close');
-	};
-	
-	$.fn.ewcms.defaults = {};
-	
-	$.fn.ewcms.defaults.window = {
-		title : "新窗口",
-		width : 500,
-		height : 300,
-		modal:true,
-		maximizable:false,
-		minimizable:true,
-		onClose:function(windowId){
-			$(windowId).find("iframe").attr('src','about:blank');
-	    }
-	};
-	
-	$.fn.ewcms.operator = {};
-	
-	$.fn.ewcms.operator.save = function(options){
-		var opts = $.extend({}, $.fn.ewcms.defaults.operator, options);
-		if(!hasElementFor(opts.iframeId)){
-			return;
-		}
-		window.frames[iframeId].document.forms[0].submit();
-	};
-	
-	$.fn.ewcms.operator.add = function(options){
-		var opts = $.extend({}, $.fn.ewcms.defaults.operator, options);
-		if(!hasElementFor([opts.iframeId,opts.windowId])){
-			return;
-		}
-		openWindow(opts);
-	};
-	
-	$.fn.ewcms.operator.update = function(options){
-		var opts = $.extend({}, $.fn.ewcms.defaults.operator, options);
-		if(!hasElementFor([opts.datagridId,opts.iframeId,opts,windowId])){
-			return;
-		}
-		
-	    var rows = $(opts.datagridId).datagrid('getSelections');
-	    if(rows.length == 0){
-	        $.messager.alert('提示','请选择修改记录','info');
-	        return;
-	    }
-	    
-	    var url = (( opts.url.indexOf("?") == -1) ? opts.url + '?' : opts.url + '&');
-	    $each(rows,function(index,row){
-	    	url += 'selections=' + opts.getId(row) +'&';
-	    });
-	    openWindow(opts);
-	};
-	
-	$.fn.ewcms.operator.remove = function(options){
-		var opts = $.extend({}, $.fn.ewcms.defaults.operator, options);
-		if(!hasElementFor(opts.datagridId)){
-			return;
-		}
-	    var rows = $(opts.datagridId).datagrid('getSelections');
-	    if(rows.length == 0){
-	        $.messager.alert('提示','请选择删除记录','info');
-	        return ;
-	    }
-	    
-	    var data = '';
-	    $.each(rows,function(index,row){
-	    	data =data + 'selections=' + opts.getId(row) +'&';
-	    });
-	    $.messager.confirm("提示","确定要删除所选记录吗?",function(r){
-	        if (r){
-	            $.post(opts.urls,ids,function(data){          	
-	            	$.messager.alert('成功','删除成功','info');
-	            	$(opts.datagridId).datagrid('clearSelections');
-	                $(opts.datagridId).datagrid('reload');              	
-	            });
-	        }
-	    });
-	};
-	
-	$.fn.ewcms.defaults.operator = {
-		datagridId : '#tt',
-		iframeId : '#editifr',
-		windowId : '#edit-window',
-		url:"#",
-		getId : function(row){
-			return id;
-		}
-	};
-	
-	$.fn.ewcms.query = function(opts){
-		
-	};
-	
-	$.fn.ewcms.defaults.query = {
-			datagridId : '#tt',
-			formId : '#queryform',
-			windowId : '#query-window',
-			url: "query.action"
-	};
-	
 	function hasElementFor(id){
 		var ids = $.isArray(id) ? id : [id];
 		$.each(ids,function(index,i){
@@ -154,4 +20,108 @@
 		return true;
 	};
 	
-})(JQuery);
+	$.extend({
+		ewcms:{
+			openTab : function (options){
+				var defaults = {
+					id : '#systemtab',
+					src : '#',
+					refresh : false
+				};
+				var opts = $.extend({}, defaults, options); 
+			    if(!opts.content){
+			    	opts.content = '<iframe src="' + opts.src + '" width=100% height=100% frameborder=0/>'; 
+			    }
+			    if(!hasElementFor(opts.id)){
+			    	return ;
+			    }
+			    var t = $(opts.id);
+			    var title = opts.title;
+			    if (!t.tabs('exists', title)) {
+			        t.tabs('add', {
+			            title : title,
+			            content : opts.content,
+			            closable : true
+			        });
+			        return;
+			    }
+			    t.tabs('select', title);
+		    	if(opts.refresh){
+		  	        t.tabs('update', {
+		  	            tab : t.tabs("getTab", title),
+		  	            options : {
+		  	                content : opts.content
+		  	            }
+		  	        });
+		    	}
+			},
+			query : function(options) {
+				var defaults = {
+						datagridId : '#tt',
+						formId : '#queryform',
+						url: "query.action",
+						selections : []
+				};
+				var opts = $.extend({}, defaults, options);
+				if(!hasElementFor(opts.datagridId)){
+					return ;
+				}
+				if(opts.selections.length > 0){
+					$(opts.datagridId).datagrid('load',{
+						selections:opts.selections
+					});
+				}else{
+					if(!hasElementFor(opts.formId)){
+						return ;
+					}
+					var wapper = {
+							parameters:{
+								a:'1',
+								b:'2'
+							}
+					};
+					alert($.param(wapper));
+					$(opts.datagridId).datagrid({
+						url:"query.action?wapper.parameters['a']=1&wapper.parameters['b']=2"
+					});
+
+				}
+			},
+			openWindow : function(options){
+				var defaults = {
+						title : "新窗口",
+						width : 500,
+						height : 300,
+						modal:true,
+						maximizable:false,
+						minimizable:true,
+						onClose:function(windowId){
+							$(windowId).find("iframe").attr('src','about:blank');
+					    }
+				};
+				var opts = $.extend({}, defaults, options);  
+				if(!hasElementFor(opts.windowId)){
+						return;
+				}
+				$(opts.windowId).removeAttr("style");
+				$(opts.windowId).window({
+					   title: opts.title,
+					   width: opts.width,
+					   height: opts.height,
+					   left:(opts.left ? opts.left : ($(window).width() - opts.width)/2),
+					   top:(opts.top ? opts.top : ($(window).height() - opts.height)/2),
+					   modal: opts.modal,
+					   maximizable:opts.maximizable,
+					   minimizable:opts.minimizable,
+					   onClose:opts.onClose(opts.windowId)
+				});
+				if(opts.src){
+					opts.iframeId ? 
+							$(opts.iframeId).attr('src',opts.src) 
+							:$(opts.windowId).find('iframe').attr('src',opts.src);
+				}
+				$(opts.windowId).window('open');
+			}
+		}
+	});
+})(jQuery);

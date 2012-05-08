@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -27,17 +29,19 @@ import com.ewcms.mongo.demo.repositories.PersonRepository;
 @RequestMapping(value = "/person")
 public class PersonController {
 
+	private final static Integer DEFAULT_PAGE = 1;
+	private final static Integer DEFAULT_PAGESIZE = 20;
+	
 	@Autowired
 	private PersonRepository personRepositoryImpl;
 	@Autowired
 	private MongoOperations mongoOperations;
 	
-	@RequestMapping(value = "/edit.action",method = RequestMethod.GET)
+	@RequestMapping(value = "/edit",method = RequestMethod.GET)
 	public String edit(@RequestParam(value = "personId", required = false)String personId, Model model) throws Exception{
-		Person person = new Person();
-		if (personId != null && personId.length() > 0){
-			person = personRepositoryImpl.findOne(personId);
-		}
+		Person person = StringUtils.hasText(personId) ?
+				personRepositoryImpl.findOne(personId) : new Person();
+		//TODO 添加persion == null 判断是否查询到制定人
 		model.addAttribute("person", person);
 		return "person/edit";
 	}
@@ -52,7 +56,7 @@ public class PersonController {
 		return "person/index";
 	}
 	
-	@RequestMapping(value = "/delete", method = RequestMethod.POST)
+	@RequestMapping(value = "/delete.action", method = RequestMethod.POST)
 	public String delete(@RequestParam("selections") List<String> selections) throws Exception{
 		for (String personId : selections){
 			personRepositoryImpl.delete(personId);
@@ -62,21 +66,39 @@ public class PersonController {
 	
 	@RequestMapping(value = "/query")
 	@ResponseBody
-	public Map<String, Object> query(@RequestParam(value = "page") int page, @RequestParam(value = "rows") int rows,
+	public Map<String, Object> query(
+			@RequestParam(value = "page", required = false) Integer page,
+			@RequestParam(value = "rows", required = false) Integer pageSize,
 			@RequestParam(value = "sort", required = false) String sort,
 			@RequestParam(value = "order", required = false) String order,
-			@RequestParam(value = "selections", required = false) String selections,
-			@ModelAttribute(value = "person")Person person) {
-		page = page - 1;
-		Pagination pageination = new PaginationImpl(10,page,Direction.ASC,"id");
+			@RequestParam(value = "selections[]", required = false) String[] selections,
+			@RequestParam(value="wapper",required=false) MapWapper wapper) {
+		
+		page = (page == null ? DEFAULT_PAGE : page);
+		pageSize = (pageSize == null ? DEFAULT_PAGESIZE : pageSize);
 		
 		EasyQuery<Person> query = new EasyQueryImpl.Where<Person>(Person.class).build(mongoOperations);
-		
+		Pagination pageination = StringUtils.hasText(sort) ?
+				new PaginationImpl(pageSize,(page - 1),Direction.fromString(order),sort)
+		        :new PaginationImpl(pageSize,(page - 1));
+				
 		ResultPage<Person> result = query.findPage(pageination);
-		
+
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		resultMap.put("total", result.getTotalElements());
 		resultMap.put("rows", result.getContent());
 		return resultMap;
+	}
+	
+	public class MapWapper{
+		private Map<String,String> parameters;
+		
+		public void setParameters(Map<String,String> parameters){
+			this.parameters = parameters;
+		}
+		
+		public Map<String,String> getParameters(){
+			return this.parameters;
+		}
 	}
 }

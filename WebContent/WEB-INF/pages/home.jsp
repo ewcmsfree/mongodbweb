@@ -12,65 +12,70 @@
         </script>
     </head>
     <body class="easyui-layout">
-        <div region="north" split="true" class="head">
-			<div id="top">
-			    <div id="toppiz">
-			   	<div class="huanying">
-			       <span style="font-size:13px;font-weight: bold;">MongoDB 欢迎你</span>
-			   	</div>
-			   <div style="float:right;margin-top:5px;margin-right:10px;">
-		           <a id="button-main" href="#" style="border:0;padding:0;"><img src="<s:url value='/ewcmssource/image/exit.png'/>" width="17" height="17" style="border:0;"/></a>
-		       </div>
-			   	<div class="anniu">
-			   		<div class="bs">
-						<a class="styleswitch a1" style="cursor: pointer" title="谈黄色" rel="sunny"></a>
-						<a class="styleswitch a2" style="cursor: pointer" title="浅蓝色" rel="cupertino"></a>
-						<a class="styleswitch a4" style="cursor: pointer" title="黑色" rel="dark-hive"></a>	
-						<a class="styleswitch a5" style="cursor: pointer" title="灰色" rel="pepper-grinder"></a>		
+
+		<div region="north" split="true" style="height:40px;padding:0px;overflow:hidden;background:#1E4176;">
+	        	<table width="100%" >
+		            <tr>
+		                <td height="32"><h1><font color="white" style="font-size:16pt">框架技术演示</font></h1></td>
+		            </tr>
+			</table>
+		</div>
+		<!--
+		<div region="east" split="true" style="width:2px;background:#efefef;overflow:hidden;">
+		</div>
+		-->
+		<div region="south" style="height:2px;background:#efefef;overflow:hidden;">
+		</div>
+
+		<div region="west" split="true" title="系统功能列表" style="width:180px;padding:1px;overflow:hidden;">
+			<div class="easyui-accordion" fit="true" border="false">
+				<div title="业务操作" selected="true" style="overflow:auto;">
+					<div class="nav-item">
+						<a href="javascript:$.ewcms.openTab({title:'google',src:'http://www.google.com'})">
+							<img src="source/image/print_class.png" style="border:0;"></img><br/>
+							<span>google</span>
+						</a>
 					</div>
-			   </div>
-					<div style="float:right;padding-top:42px;margin-right:10px;">
-                        <span id="tipMessage" style="color:red;font-size:13px;width:100px;"></span>
-                    </div>
-			 </div>
-             <div id="mm" class="easyui-menu" style="width:120px;display:none;">
-                <div  id="switch-menu" iconCls="icon-switch">站点切换</div>
-                <div class="menu-sep"></div>
-                <div id="user-menu" iconCls="icon-edit">修改用户信息</div>
-                <div id="password-menu" iconCls="icon-password">修改密码</div>
-                <div class="menu-sep"></div>
-                <div id="progress-menu">发布进度</div>
-                <div class="menu-sep"></div>
-                <div id="exit-menu" iconCls="icon-exit">退出</div>
-             </div>
-             </div>
-        </div>
-        <div region="south" style="height:2px;background:#efefef;overflow:hidden;"></div>
-        <div region="west" split="true" title="平台菜单" style="width:180px;padding:1px;overflow:hidden;">
-            <div id="mainmenu" class="easyui-accordion" fit="true" border="false">
-                <div title="例程" selected="true" style="overflow:auto;">
-                    <div class="nav-item">
-                        <a href="javascript:_home.addTab('人员管理','site/channel/index.do')">
-                            <img src="ewcmssource/image/package.png" style="border:0;"/><br/>
-                            <span>人员管理</span>
-                        </a>
-                    </div>
-                    <div class="nav-item">
-                        <a href="javascript:_home.addTab('证件查询','site/template/index.do')">
-                            <img src="ewcmssource/image/kontact.png" style="border:0;"/><br/>
-                            <span>证件查询</span>
-                        </a>
-                    </div>
-                </div>
-                <div title="菜单二" style="overflow:auto;">
-                    <div class="nav-item">
-                        <a href="javascript:_home.addTab('google','http://www.google.com')">
-                            <img src="ewcmssource/image/crawler_content.png" style="border:0"/><br/>
-                            <span>内容采集</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </body>
+					<div class="nav-item">
+						<a href="javascript:$.ewcms.openTab({title:'sina',src:'http://www.sina.com'})">
+							<img src="source/image/kdmconfig.png" style="border:0;"></img><br/>
+							<span>sina网站</span>
+						</a>
+					</div>
+					<div class="nav-item">
+						<a href="javascript:$.ewcms.openTab({title:'证件管理',src:'person/index.action'})">
+							<img src="source/image/package_settings.png" style="border:0;"></img><br/>
+							<span>证据管理</span>
+						</a>
+					</div>
+				</div>
+				<div title="数据设置" style="overflow:auto;">
+					<div class="nav-item">
+						<a href="javascript:addTab('区域设置')">
+							<img src="source/image/package.png"></img><br/>
+							<span>区域设置</span>
+						</a>
+					</div>
+					<div class="nav-item">
+						<a href="javascript:addTab('设备类别')">
+							<img src="source/image/kontact.png"></img><br/>
+							<span>设备类别</span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div region="center" style="overflow:hidden;">
+			<div class="easyui-tabs"  id="systemtab" fit="true" border="false">
+				<div title="Tab1" style="padding:20px;overflow:hidden;"> 
+					<div style="margin-top:20px;">
+						<h3>jQuery EasyUI framework help you build your web page easily.</h3>
+						<li>easyui is a collection of user-interface plugin based on jQuery.</li> 
+						<li>using easyui you don't write many javascript code, instead you defines user-interface by writing some HTML markup.</li> 
+						<li>easyui is very easy but powerful.</li> 
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
 </html>

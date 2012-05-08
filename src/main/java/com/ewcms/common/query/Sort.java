@@ -8,9 +8,11 @@ package com.ewcms.common.query;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * 查询排序选项。你提供一个排序属性列表，属性不能为{@link null}或空字符串。缺省按照升序排列{@link  Sort#DEFAULT_DIRECTION}
@@ -30,10 +32,9 @@ public class Sort implements Iterable<com.ewcms.common.query.Sort.Order>{
 	 * @param orders order不能为{@link null}或内容{@literal null}
 	 */
 	public Sort(List<Order> orders){
-		if (null == orders || orders.isEmpty()) {
-			throw new IllegalArgumentException("You have to provide at least one sort property to sort by!");
+		if (null == orders) {
+			throw new IllegalArgumentException("You is not orders null!");
 		}
-		
 		this.orders = orders;
 	}
 	
@@ -160,9 +161,17 @@ public class Sort implements Iterable<com.ewcms.common.query.Sort.Order>{
 	public enum Direction {
 		ASC,DEC;
 		
+		private static Map<String,String> ALIAS_MAP= new HashMap<String,String>();
+		
+		static {
+			ALIAS_MAP.put("asc", "ASC");
+			ALIAS_MAP.put("dec", "DEC");
+			ALIAS_MAP.put("desc", "DEC");
+		}
+		
 		public static Direction fromString(String value){
 			try{
-				return Direction.valueOf(value.toUpperCase(Locale.US));
+				return Direction.valueOf(ALIAS_MAP.get(value.toLowerCase(Locale.US)));
 			}catch(Exception e){
 				throw new IllegalArgumentException(String.format(
 						"Invalid value '%s' for orders given! Has to be either 'desc' or 'asc' (case insensitive).", value), e);

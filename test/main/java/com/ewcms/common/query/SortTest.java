@@ -26,6 +26,9 @@ public class SortTest {
 		
 		Sort.Direction dec = Sort.Direction.fromString("Dec");
 		Assert.assertEquals(Sort.Direction.DEC, dec);
+		
+		dec = Sort.Direction.fromString("Desc");
+		Assert.assertEquals(Sort.Direction.DEC, dec);
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
@@ -100,11 +103,6 @@ public class SortTest {
 	public void testNewSortByOrdersIsNull(){
 		List<Sort.Order> orders = null;
 		new Sort(orders);
-	}
-	
-	@Test(expected=IllegalArgumentException.class)
-	public void testNewSortByOrdersIsEmpty(){
-		new Sort(new ArrayList<Sort.Order>());
 	}
 	
 	@Test
