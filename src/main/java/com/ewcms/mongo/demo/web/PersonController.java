@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -67,19 +66,15 @@ public class PersonController {
 	@RequestMapping(value = "/query")
 	@ResponseBody
 	public Map<String, Object> query(
-			@RequestParam(value = "page", required = false) Integer page,
-			@RequestParam(value = "rows", required = false) Integer pageSize,
-			@RequestParam(value = "sort", required = false) String sort,
-			@RequestParam(value = "order", required = false) String order,
-			@RequestParam(value = "selections[]", required = false) String[] selections,
-			@RequestParam(value="wapper",required=false) MapWapper wapper) {
+			@ModelAttribute QueryParameter queryParam,
+			@RequestParam(value="selections[]",required=false)String[] selections) {
 		
-		page = (page == null ? DEFAULT_PAGE : page);
-		pageSize = (pageSize == null ? DEFAULT_PAGESIZE : pageSize);
+		int page =  queryParam.getPage();
+		int pageSize = queryParam.getRows();
 		
 		EasyQuery<Person> query = new EasyQueryImpl.Where<Person>(Person.class).build(mongoOperations);
-		Pagination pageination = StringUtils.hasText(sort) ?
-				new PaginationImpl(pageSize,(page - 1),Direction.fromString(order),sort)
+		Pagination pageination = StringUtils.hasText(queryParam.getSort()) ?
+				new PaginationImpl(pageSize,(page - 1),Direction.fromString(queryParam.getOrder()),queryParam.getSort())
 		        :new PaginationImpl(pageSize,(page - 1));
 				
 		ResultPage<Person> result = query.findPage(pageination);
@@ -88,17 +83,5 @@ public class PersonController {
 		resultMap.put("total", result.getTotalElements());
 		resultMap.put("rows", result.getContent());
 		return resultMap;
-	}
-	
-	public class MapWapper{
-		private Map<String,String> parameters;
-		
-		public void setParameters(Map<String,String> parameters){
-			this.parameters = parameters;
-		}
-		
-		public Map<String,String> getParameters(){
-			return this.parameters;
-		}
 	}
 }

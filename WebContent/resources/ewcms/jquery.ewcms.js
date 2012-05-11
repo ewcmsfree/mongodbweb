@@ -82,7 +82,7 @@
 					};
 					alert($.param(wapper));
 					$(opts.datagridId).datagrid({
-						url:"query.action?wapper.parameters['a']=1&wapper.parameters['b']=2"
+						url:"query.action?parameters['aqq']=1&parameters['bqq']=2&selections[]=1&selections[]=2"
 					});
 
 				}
