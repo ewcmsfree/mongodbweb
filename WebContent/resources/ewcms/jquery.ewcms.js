@@ -7,8 +7,33 @@
  * 
  * author wangwei [hhywangwei@gmail.com]
  */
-
 (function($){
+	$.fn.serializeObject = function() {
+		  var arrayData, objectData;
+		  arrayData = this.serializeArray();
+		  objectData = {};
+
+		  $.each(arrayData, function() {
+		    var value;
+
+		    if (this.value != null) {
+		      value = this.value;
+		    } else {
+		      value = '';
+		    }
+
+		    if (objectData[this.name] != null) {
+		      if (!objectData[this.name].push) {
+		        objectData[this.name] = [objectData[this.name]];
+		      }
+
+		      objectData[this.name].push(value);
+		    } else {
+		      objectData[this.name] = value;
+		    }
+		  });
+		  return objectData;
+	};
 	function hasElementFor(id){
 		var ids = $.isArray(id) ? id : [id];
 		$.each(ids,function(index,i){
@@ -66,26 +91,18 @@
 				if(!hasElementFor(opts.datagridId)){
 					return ;
 				}
-				if(opts.selections.length > 0){
-					$(opts.datagridId).datagrid('load',{
-						selections:opts.selections
-					});
-				}else{
-					if(!hasElementFor(opts.formId)){
-						return ;
+				$(opts.datagridId).datagrid({
+					onBeforeLoad:function(param){
+						if(opts.selections.length > 0){
+							$.each(opts.selections,function(i,v){
+								param['selections[' + i + ']'] = v;
+							});
+						}else{
+							param['parameters']=$(opts.formId).serializeObject();
+						}
 					}
-					var wapper = {
-							parameters:{
-								a:'1',
-								b:'2'
-							}
-					};
-					alert($.param(wapper));
-					$(opts.datagridId).datagrid({
-						url:"query.action?parameters['aqq']=1&parameters['bqq']=2&selections[]=1&selections[]=2"
-					});
-
-				}
+				});
+				$(opts.datagridId).datagrid('load');
 			},
 			openWindow : function(options){
 				var defaults = {

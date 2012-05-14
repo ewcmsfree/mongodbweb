@@ -5,7 +5,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 	<head>
-		<title>医疗证据管理</title>	
+		<title>人员管理</title>	
 		<%@ include file="../taglibs.jsp" %>
 		<script type="text/javascript">
 		$(function(){
@@ -35,7 +35,7 @@
 			});
             $("#tb-query").click(function(){
             	$.ewcms.query({
-            		url:"<c:url value='/person/query.action'/>"
+            		selections:['1','2']
             	});
             });
 		});
@@ -52,8 +52,8 @@
 				</div>
                 <div style="padding-left:5px;">
                    <form id="queryform"  style="padding: 0;margin: 0;">
-                    证据编号：<input type="text" name="id" style="width:80px"/>&nbsp;
-                    名称：<input type="text" name="name" style="width:120px"/>&nbsp;
+                    名称：<input type="text" name="name" style="width:80px"/>&nbsp;
+                    邮箱：<input type="text" name="email" style="width:120px"/>&nbsp;
                     <a href="#" id="tb-query" class="easyui-linkbutton" iconCls="icon-search">查询</a>
                    </form>
                </div>

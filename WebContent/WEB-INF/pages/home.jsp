@@ -43,9 +43,9 @@
 						</a>
 					</div>
 					<div class="nav-item">
-						<a href="javascript:$.ewcms.openTab({title:'证件管理',src:'person/index.action'})">
+						<a href="javascript:$.ewcms.openTab({title:'人员管理',src:'person/index.action'})">
 							<img src="source/image/package_settings.png" style="border:0;"></img><br/>
-							<span>证据管理</span>
+							<span>人员管理</span>
 						</a>
 					</div>
 				</div>

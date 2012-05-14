@@ -1,3 +1,8 @@
+/**
+ * Copyright (c)2010-2011 Enterprise Website Content Management System(EWCMS), All rights reserved.
+ * EWCMS PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ * http://www.ewcms.com
+ */
 package com.ewcms.mongo.demo.web;
 
 import java.util.HashMap;
@@ -28,9 +33,6 @@ import com.ewcms.mongo.demo.repositories.PersonRepository;
 @RequestMapping(value = "/person")
 public class PersonController {
 
-	private final static Integer DEFAULT_PAGE = 1;
-	private final static Integer DEFAULT_PAGESIZE = 20;
-	
 	@Autowired
 	private PersonRepository personRepositoryImpl;
 	@Autowired
@@ -65,18 +67,30 @@ public class PersonController {
 	
 	@RequestMapping(value = "/query")
 	@ResponseBody
-	public Map<String, Object> query(
-			@ModelAttribute QueryParameter queryParam,
-			@RequestParam(value="selections[]",required=false)String[] selections) {
+	public Map<String, Object> query(@ModelAttribute QueryParameter params) {
 		
-		int page =  queryParam.getPage();
-		int pageSize = queryParam.getRows();
+		int page =  params.getPage();
+		int pageSize = params.getRows();
 		
-		EasyQuery<Person> query = new EasyQueryImpl.Where<Person>(Person.class).build(mongoOperations);
-		Pagination pageination = StringUtils.hasText(queryParam.getSort()) ?
-				new PaginationImpl(pageSize,(page - 1),Direction.fromString(queryParam.getOrder()),queryParam.getSort())
+		EasyQuery<Person> query;
+		if(params.getSelections().size()>0){
+			 query = new EasyQueryImpl
+						.Where<Person>(Person.class,"id")
+						.in(params.getSelections())
+						.build(mongoOperations);
+		}else{
+			 query = new EasyQueryImpl
+						.Where<Person>(Person.class,"name")
+						.likeAny(params.getParameters().get("name"))
+						.and("email")
+						.likeAny(params.getParameters().get("email"))
+						.build(mongoOperations);
+		}
+		
+		Pagination pageination = StringUtils.hasText(params.getSort()) ?
+				new PaginationImpl(pageSize,(page - 1),Direction.fromString(params.getOrder()),params.getSort())
 		        :new PaginationImpl(pageSize,(page - 1));
-				
+		
 		ResultPage<Person> result = query.findPage(pageination);
 
 		Map<String, Object> resultMap = new HashMap<String, Object>();
