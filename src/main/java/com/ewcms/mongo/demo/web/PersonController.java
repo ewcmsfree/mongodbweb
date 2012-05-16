@@ -5,6 +5,7 @@
  */
 package com.ewcms.mongo.demo.web;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,33 +35,57 @@ import com.ewcms.mongo.demo.repositories.PersonRepository;
 public class PersonController {
 
 	@Autowired
-	private PersonRepository personRepositoryImpl;
+	private PersonRepository repository;
+	
 	@Autowired
 	private MongoOperations mongoOperations;
 	
-	@RequestMapping(value = "/edit",method = RequestMethod.GET)
-	public String edit(@RequestParam(value = "personId", required = false)String personId, Model model) throws Exception{
-		Person person = StringUtils.hasText(personId) ?
-				personRepositoryImpl.findOne(personId) : new Person();
-		//TODO 添加persion == null 判断是否查询到制定人
-		model.addAttribute("person", person);
+	@RequestMapping(value = "/edit.action",method = RequestMethod.GET)
+	public String edit(@RequestParam(required = false)List<String> selections, Model model){
+		if(selections == null || selections.isEmpty()){
+			model.addAttribute("person", new Person());
+			model.addAttribute("selections", new ArrayList<String>(0));
+		}else{
+			Person person = repository.findOne(selections.get(0));
+			person = (person == null  ? new Person() : person);
+			model.addAttribute("person", person);
+			model.addAttribute("selections", selections);
+		}
+		
 		return "person/edit";
 	}
 	
 	@RequestMapping(value = "/save.action",method = RequestMethod.POST)
-	public String save(@ModelAttribute("person")Person person, Model model) throws Exception{
-		if (person.getId() == null || person.getId().length() == 0){
-			personRepositoryImpl.save(person);
+	public String save(@ModelAttribute("person")Person person,
+			@RequestParam(required=false) List<String> selections,
+			Model model){
+		Boolean close = Boolean.FALSE;
+		if (StringUtils.hasText(person.getId())){
+			repository.save(person);
+			selections.remove(0);
+			if(selections == null || selections.isEmpty()){
+				close = Boolean.TRUE;
+			}else{
+				person = repository.findOne(selections.get(0));
+				model.addAttribute("person", person);
+				model.addAttribute("selections", selections);
+			}
 		}else{
-			personRepositoryImpl.save(person);
+			repository.save(person);
+			selections = selections == null ? new ArrayList<String>() : selections;
+			selections.add(0,person.getId());
+			model.addAttribute("person", new Person());
+			model.addAttribute("selections", selections);
 		}
-		return "person/index";
+		model.addAttribute("close",close);
+		
+		return "person/edit";
 	}
 	
-	@RequestMapping(value = "/delete.action", method = RequestMethod.POST)
-	public String delete(@RequestParam("selections") List<String> selections) throws Exception{
-		for (String personId : selections){
-			personRepositoryImpl.delete(personId);
+	@RequestMapping(value = "/remove.action", method = {RequestMethod.POST,RequestMethod.GET})
+	public String remove(@RequestParam("selections") List<String> selections){
+		for (String id : selections){
+			repository.delete(id);
     	}
     	return "person/index";
 	}

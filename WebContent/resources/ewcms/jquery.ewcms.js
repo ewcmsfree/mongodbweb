@@ -80,30 +80,6 @@
 		  	        });
 		    	}
 			},
-			query : function(options) {
-				var defaults = {
-						datagridId : '#tt',
-						formId : '#queryform',
-						url: "query.action",
-						selections : []
-				};
-				var opts = $.extend({}, defaults, options);
-				if(!hasElementFor(opts.datagridId)){
-					return ;
-				}
-				$(opts.datagridId).datagrid({
-					onBeforeLoad:function(param){
-						if(opts.selections.length > 0){
-							$.each(opts.selections,function(i,v){
-								param['selections[' + i + ']'] = v;
-							});
-						}else{
-							param['parameters']=$(opts.formId).serializeObject();
-						}
-					}
-				});
-				$(opts.datagridId).datagrid('load');
-			},
 			openWindow : function(options){
 				var defaults = {
 						title : "新窗口",
@@ -138,6 +114,76 @@
 							:$(opts.windowId).find('iframe').attr('src',opts.src);
 				}
 				$(opts.windowId).window('open');
+			},
+			query : function(options) {
+				var defaults = {
+						datagridId : '#tt',
+						formId : '#queryform',
+						url: "query.action",
+						selections : []
+				};
+				var opts = $.extend({}, defaults, options);
+				if(!hasElementFor(opts.datagridId)){
+					return ;
+				}
+				$(opts.datagridId).datagrid({
+					onBeforeLoad:function(param){
+						if(opts.selections.length > 0){
+							$.each(opts.selections,function(i,v){
+								param['selections[' + i + ']'] = v;
+							});
+						}else{
+							param['parameters']=$(opts.formId).serializeObject();
+						}
+					}
+				});
+				$(opts.datagridId).datagrid('load');
+			},
+			save :function(options){
+				var defaults = {
+						iframeId : '#editifr'
+				};
+				var opts = $.extend({}, defaults, options);
+				$(opts.iframeId).contents().find('form').submit();
+
+			},
+			add : function(options){
+				var defaults = {
+						src: "edit.action",
+					    windowId:"#edit-window"
+				};
+				var opts = $.extend({}, defaults, options);
+				if(!hasElementFor(opts.windowId)){
+					return;
+				}
+				$.ewcms.openWindow(opts);	
+			},
+			edit:function(options){
+				var defaults = {
+						src: "edit.action",
+						datagridId : '#tt',
+						windowId:'#edit-window',
+						getId : function(row){
+							return row.id;
+						}
+				};
+				var opts = $.extend({}, defaults, options);
+				if(!hasElementFor([opts.datagridId,opts.windowId])){
+					return;
+				}
+				
+			    var rows = $(opts.datagridId).datagrid('getSelections');
+			    if(rows.length == 0){
+			        $.messager.alert('提示','请选择修改记录','info');
+			        return;
+			    }
+			    
+			    var src = (( opts.src.indexOf("?") == -1) ? opts.src + '?' : opts.src + '&');
+			    $.each(rows,function(index,row){
+			    	src += 'selections=' + opts.getId(row) +'&';
+			    });
+			    opts.src = src;
+			    $.ewcms.openWindow(opts);
 			}
 		}
 	});

@@ -28,17 +28,23 @@
 	            url:"<c:url value='/person/query.action'/>"
 			});
             $("#tb-add").click(function(){
-				$.ewcms.openWindow({
-					src:"<c:url value='/person/edit.action'/>",
-					windowId:"#edit-window"
+				$.ewcms.add({
+					title:'新增人员'
 				});
 			});
+            $("#tb-edit").click(function(){
+				$.ewcms.edit();
+			});
             $("#tb-query").click(function(){
-            	$.ewcms.query({
-            		selections:['1','2']
-            	});
+            	$.ewcms.query();
             });
 		});
+		
+		function queryNews(selections){
+			$.ewcms.query({
+				selections:selections
+			});
+		}
 		</script>		
 	</head>
 	<body class="easyui-layout">
@@ -65,8 +71,8 @@
                    <iframe id="editifr"  name="editifr" class="editifr" frameborder="0" scrolling="no"></iframe>
                 </div>
                 <div region="south" border="false" style="text-align:center;height:28px;line-height:28px;background-color:#f6f6f6">
-                    <a class="easyui-linkbutton" icon="icon-save" href="javascript:void(0);" onclick="saveOperator();">保存</a>
-                    <a class="easyui-linkbutton" icon="icon-cancel" href="javascript:void(0);" onclick="javascript:$('#edit-window').window('close');">取消</a>
+                    <a class="easyui-linkbutton" icon="icon-save" href="javascript:void(0);" onclick="$.ewcms.save();">保存</a>
+                    <a class="easyui-linkbutton" icon="icon-cancel" href="javascript:void(0);" onclick="javascript:$('#edit-window').window('close');">关闭</a>
                 </div>
             </div>
         </div>	
